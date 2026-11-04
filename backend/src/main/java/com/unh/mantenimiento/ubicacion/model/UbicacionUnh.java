@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entidad Ubicacion: catalogo de lugares de la residencia.
+ * Entidad UbicacionUnh: catalogo de lugares de la residencia.
  * 'tipo_ubicacion' es texto libre (HABITACION, COMEDOR, ...) a proposito:
  * la institucion puede agregar nuevos tipos sin cambiar el esquema.
  */
 @Entity
-@Table(name = "ubicacion")
+@Table(name = "ubicacion_unh")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Ubicacion {
+public class UbicacionUnh {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

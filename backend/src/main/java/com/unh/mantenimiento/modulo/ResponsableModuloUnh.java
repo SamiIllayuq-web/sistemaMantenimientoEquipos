@@ -12,16 +12,16 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 /**
- * Entidad ResponsableModulo: tabla puente de permisos.
+ * Entidad ResponsableModuloUnh: tabla puente de permisos.
  * Un usuario puede tener varios modulos; la PK es compuesta.
  */
 @Entity
-@Table(name = "responsable_modulo")
-@IdClass(ResponsableModulo.ResponsableModuloId.class)
+@Table(name = "responsable_modulo_unh")
+@IdClass(ResponsableModuloUnh.ResponsableModuloId.class)
 @Getter
 @Setter
 @NoArgsConstructor
-public class ResponsableModulo {
+public class ResponsableModuloUnh {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)

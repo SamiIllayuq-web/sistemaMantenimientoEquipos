@@ -3,12 +3,12 @@ package com.unh.mantenimiento.usuario.service;
 import com.unh.mantenimiento.comun.excepcion.OperacionInvalidaException;
 import com.unh.mantenimiento.comun.excepcion.RecursoDuplicadoException;
 import com.unh.mantenimiento.comun.excepcion.RecursoNoEncontradoException;
-import com.unh.mantenimiento.modulo.Modulo;
-import com.unh.mantenimiento.modulo.ModuloRepository;
-import com.unh.mantenimiento.modulo.ResponsableModulo;
+import com.unh.mantenimiento.modulo.ModuloUnh;
+import com.unh.mantenimiento.modulo.ModuloUnhRepository;
+import com.unh.mantenimiento.modulo.ResponsableModuloUnh;
 import com.unh.mantenimiento.usuario.dto.UsuarioDtos;
-import com.unh.mantenimiento.usuario.model.Responsable;
-import com.unh.mantenimiento.usuario.repository.ResponsableRepository;
+import com.unh.mantenimiento.usuario.model.ResponsableUnh;
+import com.unh.mantenimiento.usuario.repository.ResponsableUnhRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,13 +27,13 @@ public class UsuarioService {
 
     private static final int LONGITUD_MINIMA_CLAVE = 8;
 
-    private final ResponsableRepository responsableRepository;
-    private final ModuloRepository moduloRepository;
+    private final ResponsableUnhRepository responsableRepository;
+    private final ModuloUnhRepository moduloRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
 
-    public UsuarioService(ResponsableRepository responsableRepository,
-                          ModuloRepository moduloRepository,
+    public UsuarioService(ResponsableUnhRepository responsableRepository,
+                          ModuloUnhRepository moduloRepository,
                           PasswordEncoder passwordEncoder,
                           EntityManager entityManager) {
         this.responsableRepository = responsableRepository;
@@ -51,7 +51,7 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UsuarioDtos.UsuarioResponse buscar(String dni) {
-        Responsable responsable = responsableRepository.findById(dni)
+        ResponsableUnh responsable = responsableRepository.findById(dni)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe un usuario con DNI " + dni));
         return aResponse(responsable);
@@ -70,7 +70,7 @@ public class UsuarioService {
                     "La contrasena debe tener al menos " + LONGITUD_MINIMA_CLAVE + " caracteres");
         }
 
-        Responsable responsable = new Responsable();
+        ResponsableUnh responsable = new ResponsableUnh();
         responsable.setDni(request.dni());
         responsable.setNombres(request.nombres());
         responsable.setApellidos(request.apellidos());
@@ -89,7 +89,7 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioDtos.UsuarioResponse actualizar(String dni, UsuarioDtos.ActualizarUsuarioRequest request) {
-        Responsable responsable = responsableRepository.findById(dni)
+        ResponsableUnh responsable = responsableRepository.findById(dni)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe un usuario con DNI " + dni));
 
@@ -125,7 +125,7 @@ public class UsuarioService {
     /** Desactiva un usuario. No se borra: los registros con datos relacionados se desactivan. */
     @Transactional
     public UsuarioDtos.UsuarioResponse desactivar(String dni) {
-        Responsable responsable = responsableRepository.findById(dni)
+        ResponsableUnh responsable = responsableRepository.findById(dni)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe un usuario con DNI " + dni));
 
@@ -139,9 +139,9 @@ public class UsuarioService {
      * Cambia el estado. Impide desactivar al ultimo usuario ACTIVO con el
      * modulo USUARIOS (si no, el sistema quedaria sin administracion).
      */
-    private void aplicarCambioEstado(Responsable responsable, String nuevoEstado) {
+    private void aplicarCambioEstado(ResponsableUnh responsable, String nuevoEstado) {
         if ("INACTIVO".equals(nuevoEstado) && "ACTIVO".equals(responsable.getEstado())) {
-            Modulo moduloUsuarios = moduloRepository.findByCodigo("USUARIOS").orElse(null);
+            ModuloUnh moduloUsuarios = moduloRepository.findByCodigo("USUARIOS").orElse(null);
             if (moduloUsuarios != null) {
                 boolean tieneUsuarios = responsableRepository
                         .findCodigosModulos(responsable.getDni()).contains("USUARIOS");
@@ -165,24 +165,24 @@ public class UsuarioService {
         }
 
         // Quitar los modulos actuales.
-        List<ResponsableModulo> actuales = entityManager
+        List<ResponsableModuloUnh> actuales = entityManager
                 .createQuery("""
-                        SELECT rm FROM ResponsableModulo rm WHERE rm.idResponsable = :dni
-                        """, ResponsableModulo.class)
+                        SELECT rm FROM ResponsableModuloUnh rm WHERE rm.idResponsable = :dni
+                        """, ResponsableModuloUnh.class)
                 .setParameter("dni", dni)
                 .getResultList();
-        for (ResponsableModulo actual : actuales) {
+        for (ResponsableModuloUnh actual : actuales) {
             entityManager.remove(actual);
         }
         entityManager.flush();
 
         // Asignar los nuevos.
         for (String codigo : codigos) {
-            Modulo modulo = moduloRepository.findByCodigo(codigo)
+            ModuloUnh modulo = moduloRepository.findByCodigo(codigo)
                     .orElseThrow(() -> new IllegalArgumentException(
                             "No existe el modulo " + codigo));
 
-            ResponsableModulo asignacion = new ResponsableModulo();
+            ResponsableModuloUnh asignacion = new ResponsableModuloUnh();
             asignacion.setIdResponsable(dni);
             asignacion.setIdModulo(modulo.getIdModulo());
             entityManager.persist(asignacion);
@@ -190,7 +190,7 @@ public class UsuarioService {
         entityManager.flush();
     }
 
-    private UsuarioDtos.UsuarioResponse aResponse(Responsable responsable) {
+    private UsuarioDtos.UsuarioResponse aResponse(ResponsableUnh responsable) {
         List<String> modulos = responsableRepository.findCodigosModulos(responsable.getDni());
         return new UsuarioDtos.UsuarioResponse(
                 responsable.getDni(),

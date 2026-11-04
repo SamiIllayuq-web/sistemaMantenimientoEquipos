@@ -96,36 +96,64 @@ Dos bases de datos PostgreSQL locales separadas (NO dos schemas en una):
 Se crea el usuario de la app 'unh_mantenimiento' con permisos sobre ambas.
 Las credenciales van en variables de entorno (ver SECRETS), nunca en el codigo.
 
-responsable
+CONVENCION DE NOMBRES (sufijo UNH)
+-----------------------------------
+El servidor PostgreSQL es COMPARTIDO con otros proyectos (cobranza, sigai_db,
+admision_db). Los nombres genericos ('activo', 'modulo') se prestaban a
+confusion, asi que TODAS las tablas llevan el sufijo 'unh':
+
+  responsable_unh              ResponsableUnh
+  modulo_unh                  ModuloUnh
+  responsable_modulo_unh      ResponsableModuloUnh
+  ubicacion_unh               UbicacionUnh
+  tipo_activo_unh             TipoActivoUnh
+  activo_unh                  ActivoUnh
+  incidencia_unh              IncidenciaUnh
+  mantenimiento_unh           MantenimientoUnh
+  evidencia_mantenimiento_unh EvidenciaMantenimientoUnh
+
+Las COLUMNAS no llevan sufijo (se conserva el nombre del doc). El renombrado se
+hizo en la migracion V2 (ALTER TABLE ... RENAME TO); PostgreSQL actualiza
+solo las claves foraneas y los indices.
+
+Las clases Java siguen la misma convencion: PascalCase + sufijo Unh.
+
+Nota: 'estado' (ACTIVO|INACTIVO, gestion) y 'estado_operativo'
+(OPERATIVO|EN_MANTENIMIENTO|FUERA_DE_SERVICIO, estado TECNICO del equipo) son
+cosas DISTINTAS. Un activo desactivado sigue inventariado; uno fuera de
+servicio esta roto pero presente.
+
+responsable_unh
   dni CHAR(8) PK, nombres, apellidos, correo UNIQUE, clave_hash, telefono NULL,
   estado ('ACTIVO'|'INACTIVO', default 'ACTIVO'), fecha_registro (default ahora),
   intentos_fallidos SMALLINT default 0, bloqueado_hasta NULL, ultimo_acceso NULL
 
-modulo
+modulo_unh
   id_modulo SERIAL PK, codigo UNIQUE, nombre, descripcion NULL
 
-responsable_modulo
+responsable_modulo_unh
   id_responsable FK->responsable.dni, id_modulo FK->modulo, PK compuesta
 
-ubicacion
+ubicacion_unh
   id_ubicacion SERIAL PK, nombre, tipo_ubicacion, pabellon NULL, piso NULL, descripcion NULL
 
-tipo_activo
+tipo_activo_unh
   id_tipo_activo SERIAL PK, nombre, categoria ('EQUIPO'|'INFRAESTRUCTURA'),
   descripcion NULL, requiere_mantenimiento BOOLEAN default true, vida_util_anios NULL
 
-activo
+activo_unh
   id_activo SERIAL PK, id_tipo_activo FK, id_ubicacion FK,
   codigo_patrimonial UNIQUE, nombre, marca NULL, modelo NULL, numero_serie NULL,
   fecha_adquisicion NULL, fecha_puesta_servicio NULL, estado_operativo,
+  estado ('ACTIVO'|'INACTIVO', default 'ACTIVO'),   <- V2: gestion, no se borra
   valor_adquisicion DECIMAL(12,2) NULL, observaciones NULL, fecha_registro
 
-incidencia
+incidencia_unh
   id_incidencia SERIAL PK, id_activo FK, fecha_deteccion_incidencia TIMESTAMP,
   descripcion, prioridad_incidencia, estado_incidencia,
   fecha_cierre_incidencia NULL, observaciones_incidencia NULL
 
-mantenimiento
+mantenimiento_unh
   id_mantenimiento SERIAL PK, id_activo FK, id_responsable FK->responsable.dni,
   id_incidencia FK NULL, tipo_mantenimiento ('PREVENTIVO'|'CORRECTIVO'),
   fecha_inicio TIMESTAMP, fecha_fin NULL, diagnostico NULL, actividad_realizada NULL,
@@ -135,7 +163,7 @@ mantenimiento
   CHECK: PREVENTIVO => id_incidencia NULL; CORRECTIVO => id_incidencia NOT NULL
   (en la V1 solo se registran CORRECTIVO)
 
-evidencia_mantenimiento
+evidencia_mantenimiento_unh
   id_evidencia SERIAL PK, id_mantenimiento FK, tipo_archivo, nombre_archivo,
   nombre_original VARCHAR(255), descripcion_evidencia NULL,
   fecha_registro_evidencia (default ahora)
@@ -144,6 +172,7 @@ evidencia_mantenimiento
 
 Tablas de despues de la V1 (no crear aun): plan_mantenimiento, repuesto,
 mantenimiento_repuesto, historial_estado_mantenimiento.
+Todas llevaran el sufijo '_unh' por la convencion de nombres.
 
 Datos iniciales (migracion): los 7 modulos y un usuario administrador con todos
 los modulos asignados.
@@ -166,6 +195,11 @@ REGLAS DE NEGOCIO
 - Al finalizarlo: incidencia -> CERRADA (con fecha de cierre), activo -> OPERATIVO
   (estas dos reglas de estados estan por validar).
 - No se borran registros con datos relacionados: se desactivan.
+- Los ACTIVOS nunca se borran: se desactivan (activo_unh.estado = INACTIVO) y
+  siguen inventariados. Un activo INACTIVO no aparece en los listados por
+  defecto, pero se puede consultar explicitamente.
+- Los CATALOGOS (ubicacion, tipo_activo) si se pueden eliminar, pero solo si
+  ningun activo los referencia; si hay referencias, se rechaza el borrado.
 - Un activo puede tener varias incidencias abiertas.
 - Solo inician sesion los usuarios ACTIVO.
 - Una evidencia siempre pertenece a un mantenimiento existente.

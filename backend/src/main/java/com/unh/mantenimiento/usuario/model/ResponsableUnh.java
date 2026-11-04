@@ -13,15 +13,15 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 /**
- * Entidad Responsable: los usuarios del sistema.
+ * Entidad ResponsableUnh: los usuarios del sistema.
  * El nombre de la tabla sigue el doc: 'responsable'.
  */
 @Entity
-@Table(name = "responsable")
+@Table(name = "responsable_unh")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Responsable {
+public class ResponsableUnh {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)

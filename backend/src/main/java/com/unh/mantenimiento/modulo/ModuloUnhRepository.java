@@ -7,17 +7,17 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ModuloRepository extends JpaRepository<Modulo, Integer> {
+public interface ModuloUnhRepository extends JpaRepository<ModuloUnh, Integer> {
 
-    Optional<Modulo> findByCodigo(String codigo);
+    Optional<ModuloUnh> findByCodigo(String codigo);
 
-    List<Modulo> findAllByOrderByIdModuloAsc();
+    List<ModuloUnh> findAllByOrderByIdModuloAsc();
 
     @Query("""
-            SELECT m FROM Modulo m
-            JOIN ResponsableModulo rm ON rm.idModulo = m.idModulo
+            SELECT m FROM ModuloUnh m
+            JOIN ResponsableModuloUnh rm ON rm.idModulo = m.idModulo
             WHERE rm.idResponsable = :dni
             ORDER BY m.idModulo
             """)
-    List<Modulo> findModulosDe(@Param("dni") String dni);
+    List<ModuloUnh> findModulosDe(@Param("dni") String dni);
 }

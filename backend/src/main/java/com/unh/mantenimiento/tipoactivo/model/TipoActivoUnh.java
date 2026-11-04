@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entidad TipoActivo: catalogo de tipos de activo.
+ * Entidad TipoActivoUnh: catalogo de tipos de activo.
  * La categoria distingue EQUIPO de INFRAESTRUCTURA (CHECK en la BD).
  */
 @Entity
-@Table(name = "tipo_activo")
+@Table(name = "tipo_activo_unh")
 @Getter
 @Setter
 @NoArgsConstructor
-public class TipoActivo {
+public class TipoActivoUnh {
 
     /** Valores permitidos para la categoria (mismo CHECK que en la BD). */
     public static final String CATEGORIA_EQUIPO = "EQUIPO";

@@ -1,6 +1,6 @@
 package com.unh.mantenimiento.seguridad.dto;
 
-import com.unh.mantenimiento.usuario.model.Responsable;
+import com.unh.mantenimiento.usuario.model.ResponsableUnh;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,7 +32,7 @@ public final class AuthDtos {
             UsuarioResponse usuario,
             List<String> modulos
     ) {
-        public static LoginResponse de(String token, Responsable responsable,
+        public static LoginResponse de(String token, ResponsableUnh responsable,
                                        List<String> modulos, long expiraEnSegundos) {
             return new LoginResponse(
                     token,

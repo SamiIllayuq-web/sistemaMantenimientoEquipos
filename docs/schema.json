@@ -1,5 +1,5 @@
 {
-  "activo": {
+  "activo_unh": {
     "columns": [
       {
         "name": "id_activo",
@@ -98,10 +98,17 @@
         "default": "now()",
         "nullable": false,
         "max_length": null
+      },
+      {
+        "name": "estado",
+        "type": "character varying",
+        "default": "'ACTIVO'::character varying",
+        "nullable": false,
+        "max_length": 10
       }
     ]
   },
-  "modulo": {
+  "modulo_unh": {
     "columns": [
       {
         "name": "id_modulo",
@@ -133,7 +140,7 @@
       }
     ]
   },
-  "ubicacion": {
+  "ubicacion_unh": {
     "columns": [
       {
         "name": "id_ubicacion",
@@ -179,7 +186,7 @@
       }
     ]
   },
-  "incidencia": {
+  "incidencia_unh": {
     "columns": [
       {
         "name": "id_incidencia",
@@ -239,7 +246,7 @@
       }
     ]
   },
-  "responsable": {
+  "responsable_unh": {
     "columns": [
       {
         "name": "dni",
@@ -320,7 +327,7 @@
       }
     ]
   },
-  "tipo_activo": {
+  "tipo_activo_unh": {
     "columns": [
       {
         "name": "id_tipo_activo",
@@ -366,7 +373,7 @@
       }
     ]
   },
-  "mantenimiento": {
+  "mantenimiento_unh": {
     "columns": [
       {
         "name": "id_mantenimiento",
@@ -475,7 +482,7 @@
       }
     ]
   },
-  "responsable_modulo": {
+  "responsable_modulo_unh": {
     "columns": [
       {
         "name": "id_responsable",
@@ -493,7 +500,7 @@
       }
     ]
   },
-  "evidencia_mantenimiento": {
+  "evidencia_mantenimiento_unh": {
     "columns": [
       {
         "name": "id_evidencia",

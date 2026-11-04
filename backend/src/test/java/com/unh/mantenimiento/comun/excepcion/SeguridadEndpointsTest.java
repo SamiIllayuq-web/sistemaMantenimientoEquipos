@@ -34,10 +34,10 @@ class SeguridadEndpointsTest {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private com.unh.mantenimiento.usuario.repository.ResponsableRepository responsableRepository;
+    private com.unh.mantenimiento.usuario.repository.ResponsableUnhRepository responsableRepository;
 
     @Autowired
-    private com.unh.mantenimiento.modulo.ModuloRepository moduloRepository;
+    private com.unh.mantenimiento.modulo.ModuloUnhRepository moduloRepository;
 
     @Autowired
     private jakarta.persistence.EntityManager entityManager;
@@ -47,7 +47,7 @@ class SeguridadEndpointsTest {
      * el token JWT resultante.
      */
     private String tokenDe(String dni, String correo, String clave, String... modulos) {
-        var responsable = new com.unh.mantenimiento.usuario.model.Responsable();
+        var responsable = new com.unh.mantenimiento.usuario.model.ResponsableUnh();
         responsable.setDni(dni);
         responsable.setNombres("Usuario");
         responsable.setApellidos("Prueba");
@@ -61,7 +61,7 @@ class SeguridadEndpointsTest {
 
         for (String codigo : modulos) {
             var modulo = moduloRepository.findByCodigo(codigo).orElseThrow();
-            var asignacion = new com.unh.mantenimiento.modulo.ResponsableModulo();
+            var asignacion = new com.unh.mantenimiento.modulo.ResponsableModuloUnh();
             asignacion.setIdResponsable(dni);
             asignacion.setIdModulo(modulo.getIdModulo());
             entityManager.persist(asignacion);

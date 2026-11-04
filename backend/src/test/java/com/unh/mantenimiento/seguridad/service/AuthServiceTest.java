@@ -1,11 +1,11 @@
 package com.unh.mantenimiento.seguridad.service;
 
-import com.unh.mantenimiento.modulo.Modulo;
-import com.unh.mantenimiento.modulo.ModuloRepository;
-import com.unh.mantenimiento.modulo.ResponsableModulo;
+import com.unh.mantenimiento.modulo.ModuloUnh;
+import com.unh.mantenimiento.modulo.ModuloUnhRepository;
+import com.unh.mantenimiento.modulo.ResponsableModuloUnh;
 import com.unh.mantenimiento.seguridad.dto.AuthDtos;
-import com.unh.mantenimiento.usuario.model.Responsable;
-import com.unh.mantenimiento.usuario.repository.ResponsableRepository;
+import com.unh.mantenimiento.usuario.model.ResponsableUnh;
+import com.unh.mantenimiento.usuario.repository.ResponsableUnhRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,10 +38,10 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Autowired
-    private ResponsableRepository responsableRepository;
+    private ResponsableUnhRepository responsableRepository;
 
     @Autowired
-    private ModuloRepository moduloRepository;
+    private ModuloUnhRepository moduloRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -57,7 +57,7 @@ class AuthServiceTest {
     void preparar() {
         responsableRepository.deleteAll();
 
-        Responsable responsable = new Responsable();
+        ResponsableUnh responsable = new ResponsableUnh();
         responsable.setDni(DNI);
         responsable.setNombres("Juan");
         responsable.setApellidos("Perez");
@@ -72,9 +72,9 @@ class AuthServiceTest {
 
     /** Asigna un modulo al responsable de prueba. */
     private void asignarModulo(String codigo) {
-        Modulo modulo = moduloRepository.findByCodigo(codigo).orElseThrow();
+        ModuloUnh modulo = moduloRepository.findByCodigo(codigo).orElseThrow();
 
-        ResponsableModulo asignacion = new ResponsableModulo();
+        ResponsableModuloUnh asignacion = new ResponsableModuloUnh();
         asignacion.setIdResponsable(DNI);
         asignacion.setIdModulo(modulo.getIdModulo());
 
@@ -153,7 +153,7 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.iniciarSesion(CORREO, CLAVE))
                 .isInstanceOf(UsuarioBloqueadoException.class);
 
-        Responsable guardado = responsableRepository.findById(DNI).orElseThrow();
+        ResponsableUnh guardado = responsableRepository.findById(DNI).orElseThrow();
         assertThat(guardado.getBloqueadoHasta()).isNotNull();
         assertThat(guardado.getBloqueadoHasta()).isAfter(LocalDateTime.now());
     }
@@ -173,7 +173,7 @@ class AuthServiceTest {
         authService.iniciarSesion(CORREO, CLAVE);
 
         recargar();
-        Responsable guardado = responsableRepository.findById(DNI).orElseThrow();
+        ResponsableUnh guardado = responsableRepository.findById(DNI).orElseThrow();
         assertThat(guardado.getIntentosFallidos()).isZero();
         assertThat(guardado.getUltimoAcceso()).isNotNull();
     }
@@ -181,7 +181,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Un usuario INACTIVO no puede iniciar sesion")
     void usuarioInactivoNoPuedeEntrar() {
-        Responsable responsable = responsableRepository.findById(DNI).orElseThrow();
+        ResponsableUnh responsable = responsableRepository.findById(DNI).orElseThrow();
         responsable.setEstado("INACTIVO");
         responsableRepository.save(responsable);
         entityManager.flush();

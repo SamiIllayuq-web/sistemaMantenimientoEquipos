@@ -4,8 +4,8 @@ import com.unh.mantenimiento.comun.excepcion.OperacionInvalidaException;
 import com.unh.mantenimiento.comun.excepcion.RecursoDuplicadoException;
 import com.unh.mantenimiento.comun.excepcion.RecursoNoEncontradoException;
 import com.unh.mantenimiento.ubicacion.dto.UbicacionDtos;
-import com.unh.mantenimiento.ubicacion.model.Ubicacion;
-import com.unh.mantenimiento.ubicacion.repository.UbicacionRepository;
+import com.unh.mantenimiento.ubicacion.model.UbicacionUnh;
+import com.unh.mantenimiento.ubicacion.repository.UbicacionUnhRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +19,10 @@ import java.util.List;
 @Service
 public class UbicacionService {
 
-    private final UbicacionRepository ubicacionRepository;
+    private final UbicacionUnhRepository ubicacionRepository;
     private final EntityManager entityManager;
 
-    public UbicacionService(UbicacionRepository ubicacionRepository, EntityManager entityManager) {
+    public UbicacionService(UbicacionUnhRepository ubicacionRepository, EntityManager entityManager) {
         this.ubicacionRepository = ubicacionRepository;
         this.entityManager = entityManager;
     }
@@ -48,7 +48,7 @@ public class UbicacionService {
             throw new RecursoDuplicadoException("Ya existe una ubicacion con ese nombre");
         }
 
-        Ubicacion ubicacion = new Ubicacion();
+        UbicacionUnh ubicacion = new UbicacionUnh();
         ubicacion.setNombre(request.nombre().trim());
         ubicacion.setTipoUbicacion(request.tipoUbicacion().trim());
         ubicacion.setPabellon(request.pabellon());
@@ -61,7 +61,7 @@ public class UbicacionService {
 
     @Transactional
     public UbicacionDtos.UbicacionResponse actualizar(Integer id, UbicacionDtos.UbicacionRequest request) {
-        Ubicacion ubicacion = obtener(id);
+        UbicacionUnh ubicacion = obtener(id);
 
         if (!request.nombre().trim().equals(ubicacion.getNombre())
                 && ubicacionRepository.existsByNombre(request.nombre().trim())) {
@@ -85,7 +85,7 @@ public class UbicacionService {
      */
     @Transactional
     public void eliminar(Integer id) {
-        Ubicacion ubicacion = obtener(id);
+        UbicacionUnh ubicacion = obtener(id);
 
         long activosVinculados = contarActivosConUbicacion(id);
         if (activosVinculados > 0) {
@@ -99,19 +99,19 @@ public class UbicacionService {
 
     private long contarActivosConUbicacion(Integer idUbicacion) {
         Object resultado = entityManager
-                .createNativeQuery("SELECT COUNT(*) FROM activo WHERE id_ubicacion = :id")
+                .createNativeQuery("SELECT COUNT(*) FROM activo_unh WHERE id_ubicacion = :id")
                 .setParameter("id", idUbicacion)
                 .getSingleResult();
         return ((Number) resultado).longValue();
     }
 
-    private Ubicacion obtener(Integer id) {
+    private UbicacionUnh obtener(Integer id) {
         return ubicacionRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe una ubicacion con ID " + id));
     }
 
-    private UbicacionDtos.UbicacionResponse aResponse(Ubicacion ubicacion) {
+    private UbicacionDtos.UbicacionResponse aResponse(UbicacionUnh ubicacion) {
         return new UbicacionDtos.UbicacionResponse(
                 ubicacion.getIdUbicacion(),
                 ubicacion.getNombre(),

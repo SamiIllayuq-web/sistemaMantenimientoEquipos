@@ -1,8 +1,8 @@
 package com.unh.mantenimiento.usuario.repository;
 
-import com.unh.mantenimiento.modulo.Modulo;
-import com.unh.mantenimiento.modulo.ResponsableModulo;
-import com.unh.mantenimiento.usuario.model.Responsable;
+import com.unh.mantenimiento.modulo.ModuloUnh;
+import com.unh.mantenimiento.modulo.ResponsableModuloUnh;
+import com.unh.mantenimiento.usuario.model.ResponsableUnh;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,9 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ResponsableRepository extends JpaRepository<Responsable, String> {
+public interface ResponsableUnhRepository extends JpaRepository<ResponsableUnh, String> {
 
-    Optional<Responsable> findByCorreo(String correo);
+    Optional<ResponsableUnh> findByCorreo(String correo);
 
     boolean existsByCorreo(String correo);
 
@@ -23,8 +23,8 @@ public interface ResponsableRepository extends JpaRepository<Responsable, String
      * Consulta explicita para evitar N+1 al construir el menu.
      */
     @Query("""
-            SELECT m.codigo FROM Modulo m
-            JOIN ResponsableModulo rm ON rm.idModulo = m.idModulo
+            SELECT m.codigo FROM ModuloUnh m
+            JOIN ResponsableModuloUnh rm ON rm.idModulo = m.idModulo
             WHERE rm.idResponsable = :dni
             ORDER BY m.idModulo
             """)
@@ -36,8 +36,8 @@ public interface ResponsableRepository extends JpaRepository<Responsable, String
      * administrador.
      */
     @Query("""
-            SELECT COUNT(DISTINCT r.dni) FROM Responsable r
-            JOIN ResponsableModulo rm ON rm.idResponsable = r.dni
+            SELECT COUNT(DISTINCT r.dni) FROM ResponsableUnh r
+            JOIN ResponsableModuloUnh rm ON rm.idResponsable = r.dni
             WHERE rm.idModulo = :idModulo AND r.estado = 'ACTIVO'
             """)
     long contarActivosConModulo(@Param("idModulo") Integer idModulo);

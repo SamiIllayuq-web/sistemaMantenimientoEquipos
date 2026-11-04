@@ -128,16 +128,16 @@ class TipoActivoServiceTest {
         // Activo que referencia el tipo (SQL nativo: el modulo de activos aun
         // no existe y no se quiere acoplar este test a el).
         entityManager.createNativeQuery("""
-                INSERT INTO ubicacion (nombre, tipo_ubicacion)
-                VALUES ('Ubicacion de prueba', 'SALA')
+                INSERT INTO ubicacion_unh (nombre, tipo_ubicacion)
+                VALUES ('UbicacionUnh de prueba', 'SALA')
                 """).executeUpdate();
 
         Integer idUbicacion = (Integer) entityManager
-                .createNativeQuery("SELECT id_ubicacion FROM ubicacion WHERE nombre = 'Ubicacion de prueba'")
+                .createNativeQuery("SELECT id_ubicacion FROM ubicacion_unh WHERE nombre = 'UbicacionUnh de prueba'")
                 .getSingleResult();
 
         entityManager.createNativeQuery("""
-                INSERT INTO activo (id_tipo_activo, id_ubicacion, codigo_patrimonial, nombre,
+                INSERT INTO activo_unh (id_tipo_activo, id_ubicacion, codigo_patrimonial, nombre,
                                     estado_operativo, fecha_registro)
                 VALUES (:idTipo, :idUbicacion, 'PAT-TEST-002', 'Activo de prueba', 'OPERATIVO', NOW())
                 """)

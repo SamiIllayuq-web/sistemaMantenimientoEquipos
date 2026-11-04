@@ -26,11 +26,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/ubicaciones")
-public class UbicacionController {
+public class UbicacionUnhController {
 
     private final UbicacionService ubicacionService;
 
-    public UbicacionController(UbicacionService ubicacionService) {
+    public UbicacionUnhController(UbicacionService ubicacionService) {
         this.ubicacionService = ubicacionService;
     }
 

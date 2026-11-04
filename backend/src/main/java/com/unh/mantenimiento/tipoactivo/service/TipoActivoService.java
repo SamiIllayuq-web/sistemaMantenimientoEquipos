@@ -4,8 +4,8 @@ import com.unh.mantenimiento.comun.excepcion.OperacionInvalidaException;
 import com.unh.mantenimiento.comun.excepcion.RecursoDuplicadoException;
 import com.unh.mantenimiento.comun.excepcion.RecursoNoEncontradoException;
 import com.unh.mantenimiento.tipoactivo.dto.TipoActivoDtos;
-import com.unh.mantenimiento.tipoactivo.model.TipoActivo;
-import com.unh.mantenimiento.tipoactivo.repository.TipoActivoRepository;
+import com.unh.mantenimiento.tipoactivo.model.TipoActivoUnh;
+import com.unh.mantenimiento.tipoactivo.repository.TipoActivoUnhRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +19,10 @@ import java.util.List;
 @Service
 public class TipoActivoService {
 
-    private final TipoActivoRepository tipoActivoRepository;
+    private final TipoActivoUnhRepository tipoActivoRepository;
     private final EntityManager entityManager;
 
-    public TipoActivoService(TipoActivoRepository tipoActivoRepository, EntityManager entityManager) {
+    public TipoActivoService(TipoActivoUnhRepository tipoActivoRepository, EntityManager entityManager) {
         this.tipoActivoRepository = tipoActivoRepository;
         this.entityManager = entityManager;
     }
@@ -57,7 +57,7 @@ public class TipoActivoService {
             throw new RecursoDuplicadoException("Ya existe un tipo de activo con ese nombre");
         }
 
-        TipoActivo tipoActivo = new TipoActivo();
+        TipoActivoUnh tipoActivo = new TipoActivoUnh();
         tipoActivo.setNombre(request.nombre().trim());
         tipoActivo.setCategoria(request.categoria());
         tipoActivo.setDescripcion(request.descripcion());
@@ -71,7 +71,7 @@ public class TipoActivoService {
     @Transactional
     public TipoActivoDtos.TipoActivoResponse actualizar(
             Integer id, TipoActivoDtos.TipoActivoRequest request) {
-        TipoActivo tipoActivo = obtener(id);
+        TipoActivoUnh tipoActivo = obtener(id);
 
         if (!request.nombre().trim().equals(tipoActivo.getNombre())
                 && tipoActivoRepository.existsByNombre(request.nombre().trim())) {
@@ -94,7 +94,7 @@ public class TipoActivoService {
      */
     @Transactional
     public void eliminar(Integer id) {
-        TipoActivo tipoActivo = obtener(id);
+        TipoActivoUnh tipoActivo = obtener(id);
 
         long activosVinculados = contarActivosConTipo(id);
         if (activosVinculados > 0) {
@@ -108,19 +108,19 @@ public class TipoActivoService {
 
     private long contarActivosConTipo(Integer idTipoActivo) {
         Object resultado = entityManager
-                .createNativeQuery("SELECT COUNT(*) FROM activo WHERE id_tipo_activo = :id")
+                .createNativeQuery("SELECT COUNT(*) FROM activo_unh WHERE id_tipo_activo = :id")
                 .setParameter("id", idTipoActivo)
                 .getSingleResult();
         return ((Number) resultado).longValue();
     }
 
-    private TipoActivo obtener(Integer id) {
+    private TipoActivoUnh obtener(Integer id) {
         return tipoActivoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe un tipo de activo con ID " + id));
     }
 
-    private TipoActivoDtos.TipoActivoResponse aResponse(TipoActivo tipoActivo) {
+    private TipoActivoDtos.TipoActivoResponse aResponse(TipoActivoUnh tipoActivo) {
         return new TipoActivoDtos.TipoActivoResponse(
                 tipoActivo.getIdTipoActivo(),
                 tipoActivo.getNombre(),

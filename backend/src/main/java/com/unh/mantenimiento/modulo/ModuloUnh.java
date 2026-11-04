@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entidad Modulo: catalogo de modulos (pantallas) que dan permisos.
+ * Entidad ModuloUnh: catalogo de modulos (pantallas) que dan permisos.
  * El codigo del modulo es el nombre de la autoridad de Spring Security.
  */
 @Entity
-@Table(name = "modulo")
+@Table(name = "modulo_unh")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Modulo {
+public class ModuloUnh {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

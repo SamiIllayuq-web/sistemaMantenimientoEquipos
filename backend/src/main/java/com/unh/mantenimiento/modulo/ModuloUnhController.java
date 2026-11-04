@@ -12,11 +12,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/modulos")
-public class ModuloController {
+public class ModuloUnhController {
 
-    private final ModuloRepository moduloRepository;
+    private final ModuloUnhRepository moduloRepository;
 
-    public ModuloController(ModuloRepository moduloRepository) {
+    public ModuloUnhController(ModuloUnhRepository moduloRepository) {
         this.moduloRepository = moduloRepository;
     }
 
@@ -30,7 +30,7 @@ public class ModuloController {
 
     /** DTO del modulo: nunca expone la tabla puente. */
     public record ModuloDTO(Integer id, String codigo, String nombre, String descripcion) {
-        static ModuloDTO de(Modulo modulo) {
+        static ModuloDTO de(ModuloUnh modulo) {
             return new ModuloDTO(
                     modulo.getIdModulo(),
                     modulo.getCodigo(),

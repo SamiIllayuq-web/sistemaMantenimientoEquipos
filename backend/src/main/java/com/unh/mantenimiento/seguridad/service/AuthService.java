@@ -1,10 +1,10 @@
 package com.unh.mantenimiento.seguridad.service;
 
-import com.unh.mantenimiento.modulo.ModuloRepository;
+import com.unh.mantenimiento.modulo.ModuloUnhRepository;
 import com.unh.mantenimiento.seguridad.dto.AuthDtos;
 import com.unh.mantenimiento.seguridad.model.UsuarioAutenticado;
-import com.unh.mantenimiento.usuario.model.Responsable;
-import com.unh.mantenimiento.usuario.repository.ResponsableRepository;
+import com.unh.mantenimiento.usuario.model.ResponsableUnh;
+import com.unh.mantenimiento.usuario.repository.ResponsableUnhRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +26,13 @@ public class AuthService {
     /** Minutos de bloqueo tras agotar los intentos. */
     public static final int MINUTOS_BLOQUEO = 15;
 
-    private final ResponsableRepository responsableRepository;
-    private final ModuloRepository moduloRepository;
+    private final ResponsableUnhRepository responsableRepository;
+    private final ModuloUnhRepository moduloRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(ResponsableRepository responsableRepository,
-                       ModuloRepository moduloRepository,
+    public AuthService(ResponsableUnhRepository responsableRepository,
+                       ModuloUnhRepository moduloRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService) {
         this.responsableRepository = responsableRepository;
@@ -52,7 +52,7 @@ public class AuthService {
      */
     @Transactional(noRollbackFor = CredencialesInvalidasException.class)
     public AuthDtos.LoginResponse iniciarSesion(String correo, String clave) {
-        Responsable responsable = responsableRepository.findByCorreo(correo).orElse(null);
+        ResponsableUnh responsable = responsableRepository.findByCorreo(correo).orElse(null);
         LocalDateTime ahora = LocalDateTime.now();
 
         if (responsable == null) {
@@ -85,7 +85,7 @@ public class AuthService {
                 jwtService.getExpiracionMinutos() * 60);
     }
 
-    private void registrarIntentoFallido(Responsable responsable, LocalDateTime ahora) {
+    private void registrarIntentoFallido(ResponsableUnh responsable, LocalDateTime ahora) {
         int intentos = responsable.getIntentosFallidos() + 1;
         responsable.setIntentosFallidos(intentos);
 
@@ -100,7 +100,7 @@ public class AuthService {
     /** Datos del usuario autenticado para construir el Authentication del contexto. */
     @Transactional(readOnly = true)
     public UsuarioAutenticado cargarAutenticado(String dni) {
-        Responsable responsable = responsableRepository.findById(dni)
+        ResponsableUnh responsable = responsableRepository.findById(dni)
                 .orElseThrow(() -> new CredencialesInvalidasException());
 
         List<String> modulos = responsableRepository.findCodigosModulos(dni);

@@ -26,11 +26,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/tipos-activo")
-public class TipoActivoController {
+public class TipoActivoUnhController {
 
     private final TipoActivoService tipoActivoService;
 
-    public TipoActivoController(TipoActivoService tipoActivoService) {
+    public TipoActivoUnhController(TipoActivoService tipoActivoService) {
         this.tipoActivoService = tipoActivoService;
     }
 
