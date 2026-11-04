@@ -1,0 +1,71 @@
+.login-pagina {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #16241d 0%, #1f6f4a 100%);
+  padding: 1.5rem;
+}
+
+.login-tarjeta {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-panel);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.login-encabezado {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-encabezado h1 {
+  font-size: 1.3rem;
+  margin-bottom: 0.15rem;
+}
+
+.login-encabezado p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 0.88rem;
+}
+
+.login-tarjeta form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-tarjeta label {
+  margin-top: 0.85rem;
+}
+
+.login-tarjeta button {
+  margin-top: 1.25rem;
+  padding: 0.65rem;
+  font-weight: 600;
+}
+
+.login-error {
+  margin-top: 1rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--color-error-fondo);
+  border: 1px solid rgba(179, 38, 30, 0.25);
+  border-radius: var(--radio);
+  color: var(--color-error);
+  font-size: 0.87rem;
+}
+
+.login-pie {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-borde);
+  text-align: center;
+}
+
+.login-pie p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+}

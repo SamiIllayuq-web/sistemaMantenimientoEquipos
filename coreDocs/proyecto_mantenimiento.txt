@@ -170,7 +170,7 @@ REGLAS DE NEGOCIO
 - Solo inician sesion los usuarios ACTIVO.
 - Una evidencia siempre pertenece a un mantenimiento existente.
 
-SEGURIDAD (aplicacion)
+SECURIDAD (aplicacion)
 ----------------------
 - Contrasenas con BCrypt, minimo 8 caracteres. Nunca se devuelve clave_hash.
 - Login devuelve JWT de corta duracion + datos del usuario + lista de modulos.
@@ -178,14 +178,20 @@ SEGURIDAD (aplicacion)
   endpoint exige la suya. El servidor valida; ocultar el menu en el frontend no basta.
 - 5 intentos fallidos => bloqueo temporal. El error no dice si fallo usuario o clave.
 - Consultas parametrizadas (JPA). Entradas validadas con Bean Validation.
-- Los catalogos (ubicaciones, tipos) para listas desplegables se leen por
-  endpoints de solo lectura abiertos a cualquier usuario con sesion (por confirmar).
+- Catalogos (ubicaciones, tipos de activo): lectura abierta a cualquier usuario
+  con sesion (cualquier rol, sin excepcion). La ESCRITURA sobre un catalogo
+  exige su modulo (MOD_UBICACIONES / MOD_TIPOS_ACTIVO): el responsable
+  registra, actualiza y consulta; el administrador tambien.
+- Un activo registra su ubicacion y su tipo: el detalle de un activo trae
+  ubicacion y tipo anidados (endpoint de detalle, no problema de datos).
 - No se puede quitar el modulo USUARIOS ni desactivar al ultimo usuario que lo tenga.
 - CORS solo para el origen del frontend.
 - Evidencias (propuesta): solo JPG, PNG y PDF, maximo 10 MB, validados en el servidor.
   El archivo se guarda con nombre generado (nunca el nombre que envia el usuario)
   en una carpeta no publica, y se entrega solo por un endpoint que exige sesion y
   el modulo EVIDENCIAS.
+- JWT: duracion configurable (JWT_EXPIRACION_MINUTOS, por defecto 120).
+  Sin refresh token en la V1: al expirar, el usuario vuelve a iniciar sesion.
 
 API (convencion)
 ----------------

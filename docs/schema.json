@@ -1,0 +1,549 @@
+{
+  "activo": {
+    "columns": [
+      {
+        "name": "id_activo",
+        "type": "integer",
+        "default": "nextval('activo_id_activo_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "id_tipo_activo",
+        "type": "integer",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "id_ubicacion",
+        "type": "integer",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "codigo_patrimonial",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 50
+      },
+      {
+        "name": "nombre",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 150
+      },
+      {
+        "name": "marca",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 100
+      },
+      {
+        "name": "modelo",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 100
+      },
+      {
+        "name": "numero_serie",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 100
+      },
+      {
+        "name": "fecha_adquisicion",
+        "type": "date",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "fecha_puesta_servicio",
+        "type": "date",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "estado_operativo",
+        "type": "character varying",
+        "default": "'OPERATIVO'::character varying",
+        "nullable": false,
+        "max_length": 25
+      },
+      {
+        "name": "valor_adquisicion",
+        "type": "numeric",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "observaciones",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 500
+      },
+      {
+        "name": "fecha_registro",
+        "type": "timestamp without time zone",
+        "default": "now()",
+        "nullable": false,
+        "max_length": null
+      }
+    ]
+  },
+  "modulo": {
+    "columns": [
+      {
+        "name": "id_modulo",
+        "type": "integer",
+        "default": "nextval('modulo_id_modulo_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "codigo",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 50
+      },
+      {
+        "name": "nombre",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 100
+      },
+      {
+        "name": "descripcion",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 255
+      }
+    ]
+  },
+  "ubicacion": {
+    "columns": [
+      {
+        "name": "id_ubicacion",
+        "type": "integer",
+        "default": "nextval('ubicacion_id_ubicacion_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "nombre",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 100
+      },
+      {
+        "name": "tipo_ubicacion",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 50
+      },
+      {
+        "name": "pabellon",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 50
+      },
+      {
+        "name": "piso",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 20
+      },
+      {
+        "name": "descripcion",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 255
+      }
+    ]
+  },
+  "incidencia": {
+    "columns": [
+      {
+        "name": "id_incidencia",
+        "type": "integer",
+        "default": "nextval('incidencia_id_incidencia_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "id_activo",
+        "type": "integer",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "fecha_deteccion_incidencia",
+        "type": "timestamp without time zone",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "descripcion",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 1000
+      },
+      {
+        "name": "prioridad_incidencia",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 10
+      },
+      {
+        "name": "estado_incidencia",
+        "type": "character varying",
+        "default": "'ABIERTA'::character varying",
+        "nullable": false,
+        "max_length": 15
+      },
+      {
+        "name": "fecha_cierre_incidencia",
+        "type": "timestamp without time zone",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "observaciones_incidencia",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 500
+      }
+    ]
+  },
+  "responsable": {
+    "columns": [
+      {
+        "name": "dni",
+        "type": "character",
+        "default": null,
+        "nullable": false,
+        "max_length": 8
+      },
+      {
+        "name": "nombres",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 100
+      },
+      {
+        "name": "apellidos",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 100
+      },
+      {
+        "name": "correo",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 150
+      },
+      {
+        "name": "clave_hash",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 100
+      },
+      {
+        "name": "telefono",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 20
+      },
+      {
+        "name": "estado",
+        "type": "character varying",
+        "default": "'ACTIVO'::character varying",
+        "nullable": false,
+        "max_length": 10
+      },
+      {
+        "name": "fecha_registro",
+        "type": "timestamp without time zone",
+        "default": "now()",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "intentos_fallidos",
+        "type": "smallint",
+        "default": "0",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "bloqueado_hasta",
+        "type": "timestamp without time zone",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "ultimo_acceso",
+        "type": "timestamp without time zone",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      }
+    ]
+  },
+  "tipo_activo": {
+    "columns": [
+      {
+        "name": "id_tipo_activo",
+        "type": "integer",
+        "default": "nextval('tipo_activo_id_tipo_activo_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "nombre",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 100
+      },
+      {
+        "name": "categoria",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 20
+      },
+      {
+        "name": "descripcion",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 255
+      },
+      {
+        "name": "requiere_mantenimiento",
+        "type": "boolean",
+        "default": "true",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "vida_util_anios",
+        "type": "integer",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      }
+    ]
+  },
+  "mantenimiento": {
+    "columns": [
+      {
+        "name": "id_mantenimiento",
+        "type": "integer",
+        "default": "nextval('mantenimiento_id_mantenimiento_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "id_activo",
+        "type": "integer",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "id_responsable",
+        "type": "character",
+        "default": null,
+        "nullable": false,
+        "max_length": 8
+      },
+      {
+        "name": "id_incidencia",
+        "type": "integer",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "tipo_mantenimiento",
+        "type": "character varying",
+        "default": "'CORRECTIVO'::character varying",
+        "nullable": false,
+        "max_length": 15
+      },
+      {
+        "name": "fecha_inicio",
+        "type": "timestamp without time zone",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "fecha_fin",
+        "type": "timestamp without time zone",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "diagnostico",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 1000
+      },
+      {
+        "name": "actividad_realizada",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 1000
+      },
+      {
+        "name": "resultado",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 500
+      },
+      {
+        "name": "estado_mantenimiento",
+        "type": "character varying",
+        "default": "'EN_PROCESO'::character varying",
+        "nullable": false,
+        "max_length": 15
+      },
+      {
+        "name": "horas_inactividad",
+        "type": "numeric",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "costo_mano_obra",
+        "type": "numeric",
+        "default": "0",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "proxima_fecha_mantenimiento",
+        "type": "date",
+        "default": null,
+        "nullable": true,
+        "max_length": null
+      },
+      {
+        "name": "observaciones_mantenimiento",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 500
+      }
+    ]
+  },
+  "responsable_modulo": {
+    "columns": [
+      {
+        "name": "id_responsable",
+        "type": "character",
+        "default": null,
+        "nullable": false,
+        "max_length": 8
+      },
+      {
+        "name": "id_modulo",
+        "type": "integer",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      }
+    ]
+  },
+  "evidencia_mantenimiento": {
+    "columns": [
+      {
+        "name": "id_evidencia",
+        "type": "integer",
+        "default": "nextval('evidencia_mantenimiento_id_evidencia_seq'::regclass)",
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "id_mantenimiento",
+        "type": "integer",
+        "default": null,
+        "nullable": false,
+        "max_length": null
+      },
+      {
+        "name": "tipo_archivo",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 15
+      },
+      {
+        "name": "nombre_archivo",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 255
+      },
+      {
+        "name": "nombre_original",
+        "type": "character varying",
+        "default": null,
+        "nullable": false,
+        "max_length": 255
+      },
+      {
+        "name": "descripcion_evidencia",
+        "type": "character varying",
+        "default": null,
+        "nullable": true,
+        "max_length": 500
+      },
+      {
+        "name": "fecha_registro_evidencia",
+        "type": "timestamp without time zone",
+        "default": "now()",
+        "nullable": false,
+        "max_length": null
+      }
+    ]
+  }
+}
