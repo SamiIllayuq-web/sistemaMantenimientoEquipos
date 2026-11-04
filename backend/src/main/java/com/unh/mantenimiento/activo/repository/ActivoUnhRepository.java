@@ -1,6 +1,8 @@
 package com.unh.mantenimiento.activo.repository;
 
 import com.unh.mantenimiento.activo.model.ActivoUnh;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,10 +40,37 @@ public interface ActivoUnhRepository extends JpaRepository<ActivoUnh, Integer> {
     List<ActivoUnh> buscar(
             @Param("patron") String patron, @Param("estado") String estado);
 
+    /** Listado paginado con los mismos filtros que {@link #buscar}. */
+    @EntityGraph(attributePaths = {"tipoActivo", "ubicacion"})
+    @Query(value = """
+            SELECT a FROM ActivoUnh a
+            WHERE (:estado IS NULL OR a.estado = :estado)
+              AND (:patron IS NULL
+                   OR LOWER(a.nombre) LIKE :patron
+                   OR LOWER(a.codigoPatrimonial) LIKE :patron)
+            ORDER BY a.nombre ASC
+            """,
+            countQuery = """
+            SELECT COUNT(a) FROM ActivoUnh a
+            WHERE (:estado IS NULL OR a.estado = :estado)
+              AND (:patron IS NULL
+                   OR LOWER(a.nombre) LIKE :patron
+                   OR LOWER(a.codigoPatrimonial) LIKE :patron)
+            """)
+    Page<ActivoUnh> buscarPaginado(
+            @Param("patron") String patron,
+            @Param("estado") String estado,
+            Pageable pageable);
+
     /** Detalle con tipo y ubicacion anidados. */
     @EntityGraph(attributePaths = {"tipoActivo", "ubicacion"})
     @Query("SELECT a FROM ActivoUnh a WHERE a.idActivo = :id")
     Optional<ActivoUnh> buscarDetalle(@Param("id") Integer id);
+
+    /** Lista ordenada por nombre, para los desplegables de opciones. */
+    @EntityGraph(attributePaths = {"tipoActivo", "ubicacion"})
+    @Query("SELECT a FROM ActivoUnh a ORDER BY a.nombre ASC")
+    List<ActivoUnh> findAllByOrderByNombreAsc();
 
     /** Cuenta los activos que referencian un tipo de activo (guard de borrado). */
     @Query("SELECT COUNT(a) FROM ActivoUnh a WHERE a.tipoActivo.idTipoActivo = :id")

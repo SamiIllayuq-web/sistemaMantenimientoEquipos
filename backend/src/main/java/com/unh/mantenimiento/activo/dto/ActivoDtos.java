@@ -33,6 +33,17 @@ public final class ActivoDtos {
     }
 
     /**
+     * Version ligera de un activo, para los desplegables (selectores).
+     * No trae tipo ni ubicacion: solo lo necesario para elegir.
+     */
+    public record ActivoOpcion(
+            Integer id,
+            String codigoPatrimonial,
+            String nombre
+    ) {
+    }
+
+    /**
      * Respuesta de un activo. Trae tipo y ubicacion ANIDADOS: activos y
      * ubicaciones son tablas separadas, pero el frontend los necesita juntos.
      */

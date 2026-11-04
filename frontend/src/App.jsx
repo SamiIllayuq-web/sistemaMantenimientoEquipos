@@ -6,6 +6,7 @@ import Usuarios from './paginas/Usuarios'
 import Ubicaciones from './paginas/Ubicaciones'
 import TiposActivo from './paginas/TiposActivo'
 import Activos from './paginas/Activos'
+import Incidencias from './paginas/Incidencias'
 import './App.css'
 
 /** Protege una ruta: exige sesion activa. */
@@ -85,7 +86,7 @@ export default function App() {
           <Route path="ubicaciones" element={<Ubicaciones />} />
           <Route path="tipos-activo" element={<TiposActivo />} />
           <Route path="activos" element={<Activos />} />
-          <Route path="incidencias" element={<EnConstruccion modulo="Incidencias" />} />
+          <Route path="incidencias" element={<Incidencias />} />
           <Route path="mantenimientos" element={<EnConstruccion modulo="Mantenimientos" />} />
           <Route path="evidencias" element={<EnConstruccion modulo="Evidencias" />} />
         </Route>

@@ -2,6 +2,7 @@ package com.unh.mantenimiento.activo.controller;
 
 import com.unh.mantenimiento.activo.dto.ActivoDtos;
 import com.unh.mantenimiento.activo.service.ActivoUnhService;
+import com.unh.mantenimiento.comun.dto.PaginaResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,16 +36,29 @@ public class ActivoUnhController {
     }
 
     /**
-     * Listado de activos.
+     * Listado paginado de activos.
      *
      * @param texto  busqueda por nombre o codigo patrimonial (opcional)
      * @param estado ACTIVO (por defecto), INACTIVO o todos (opcional)
+     * @param pagina numero de pagina, base 1 (por defecto 1)
+     * @param tamano registros por pagina (por defecto 20, maximo 100)
      */
     @GetMapping
-    public List<ActivoDtos.ActivoResponse> listar(
+    public PaginaResponse<ActivoDtos.ActivoResponse> listar(
             @RequestParam(required = false) String texto,
-            @RequestParam(required = false) String estado) {
-        return activoService.listar(texto, estado);
+            @RequestParam(required = false) String estado,
+            @RequestParam(defaultValue = "1") int pagina,
+            @RequestParam(defaultValue = "20") int tamano) {
+        return activoService.listarPaginado(texto, estado, pagina, tamano);
+    }
+
+    /**
+     * Lista ligera para los desplegables: solo id, codigo y nombre.
+     * Sin paginacion a proposito: un selector debe ofrecer todas las opciones.
+     */
+    @GetMapping("/opciones")
+    public List<ActivoDtos.ActivoOpcion> opciones() {
+        return activoService.listarOpciones();
     }
 
     /** Detalle: trae tipo y ubicacion anidados. */

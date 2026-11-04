@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import api from '../api/cliente'
+import Paginacion from '../componentes/Paginacion'
+import '../componentes/Paginacion.css'
 import { useSesion } from '../contexto/Sesion'
 import './Activos.css'
 
@@ -34,31 +36,37 @@ export default function Activos() {
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO)
   const [editando, setEditando] = useState(null)
   const [busqueda, setBusqueda] = useState('')
+  const [textoBusqueda, setTextoBusqueda] = useState('')
   const [estadoFiltro, setEstadoFiltro] = useState('ACTIVO')
   const [error, setError] = useState('')
   const [exito, setExito] = useState('')
   const [cargando, setCargando] = useState(true)
+  const [pagina, setPagina] = useState(1)
+  const [tamano, setTamano] = useState(20)
+  const [total, setTotal] = useState(0)
+  const [totalPaginas, setTotalPaginas] = useState(0)
 
-  async function cargaractivos() {
-    const params = {}
-    if (busqueda.trim()) params.texto = busqueda.trim()
+  const cargarActivos = useCallback(async () => {
+    const params = { pagina, tamano }
+    if (textoBusqueda.trim()) params.texto = textoBusqueda.trim()
     if (estadoFiltro) params.estado = estadoFiltro
 
     const respuesta = await api.get('/activos', { params })
-    setActivos(respuesta.data)
-  }
+    setActivos(respuesta.data.contenido)
+    setTotal(respuesta.data.total)
+    setTotalPaginas(respuesta.data.totalPaginas)
+  }, [textoBusqueda, estadoFiltro, pagina, tamano])
 
   useEffect(() => {
     async function cargar() {
       try {
-        const [respActivos, respTipos, respUbicaciones] = await Promise.all([
-          api.get('/activos', { params: { estado: estadoFiltro } }),
+        const [respTipos, respUbicaciones] = await Promise.all([
           api.get('/tipos-activo'),
           api.get('/ubicaciones'),
         ])
-        setActivos(respActivos.data)
         setTipos(respTipos.data)
         setUbicaciones(respUbicaciones.data)
+        await cargarActivos()
       } catch (fallo) {
         setError(fallo.response?.data?.mensaje ?? 'No se pudieron cargar los datos')
       } finally {
@@ -66,7 +74,7 @@ export default function Activos() {
       }
     }
     cargar()
-  }, [estadoFiltro])
+  }, [cargarActivos])
 
   function cambiar(campo, valor) {
     setFormulario((anterior) => ({ ...anterior, [campo]: valor }))
@@ -74,12 +82,28 @@ export default function Activos() {
 
   function buscar(e) {
     e.preventDefault()
-    cargarActivos().catch(() => {})
+    setPagina(1)
+    setTextoBusqueda(busqueda)
   }
 
   function limpiarBusqueda() {
     setBusqueda('')
-    setTimeout(() => cargarActivos().catch(() => {}), 0)
+    setTextoBusqueda('')
+    setPagina(1)
+  }
+
+  function cambiarEstadoFiltro(nuevoEstado) {
+    setEstadoFiltro(nuevoEstado)
+    setPagina(1)
+  }
+
+  function cambiarPagina(nuevaPagina) {
+    setPagina(nuevaPagina)
+  }
+
+  function cambiarTamano(nuevoTamano) {
+    setTamano(nuevoTamano)
+    setPagina(1)
   }
 
   function editar(activo) {
@@ -204,7 +228,7 @@ export default function Activos() {
           <select
             id="estado"
             value={estadoFiltro}
-            onChange={(e) => setEstadoFiltro(e.target.value)}
+            onChange={(e) => cambiarEstadoFiltro(e.target.value)}
           >
             <option value="ACTIVO">Activos</option>
             <option value="INACTIVO">Inactivos (desactivados)</option>
@@ -375,7 +399,7 @@ export default function Activos() {
         )}
 
         <section className="activos-panel">
-          <h2>Inventario ({activos.length})</h2>
+          <h2>Inventario ({total})</h2>
 
           {activos.length === 0 ? (
             <p className="activos-vacio">No hay activos que coincidan.</p>
@@ -436,6 +460,15 @@ export default function Activos() {
               </tbody>
             </table>
           )}
+
+          <Paginacion
+            pagina={pagina}
+            totalPaginas={totalPaginas}
+            total={total}
+            tamano={tamano}
+            onCambiarPagina={cambiarPagina}
+            onCambiarTamano={cambiarTamano}
+          />
         </section>
       </div>
     </div>

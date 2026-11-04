@@ -203,6 +203,16 @@ REGLAS DE NEGOCIO
 - Un activo puede tener varias incidencias abiertas.
 - Solo inician sesion los usuarios ACTIVO.
 - Una evidencia siempre pertenece a un mantenimiento existente.
+- La incidencia NACE ABIERTA y se reporta. El paso a EN_ATENCION y a CERRADA
+  lo hace el modulo de mantenimientos (I5) de forma automatica: NADIE cambia
+  el estado de una incidencia a mano y no existe endpoint para eso.
+- Solo se puede corregir (descripcion, prioridad, observaciones) una incidencia
+  que este ABIERTA. Pasada a EN_ATENCION o CERRADA queda congelada: el
+  historial no se altera.
+- Un activo desactivado (estado INACTIVO) no admite incidencias nuevas: se
+  rechaza el reporte con un mensaje claro.
+- Listado de incidencias: filtros por estado y por activo, con paginacion
+  (ver PAGINACION).
 
 SECURIDAD (aplicacion)
 ----------------------
@@ -233,6 +243,22 @@ REST bajo /api: /api/auth/login, /api/auth/me, /api/usuarios, /api/ubicaciones,
 /api/tipos-activo, /api/activos, /api/incidencias, /api/mantenimientos,
 /api/mantenimientos/{id}/evidencias (subir y listar, multipart),
 /api/evidencias/{id}/archivo (descargar).
+
+PAGINACION (convencion)
+------------------------
+Los listados que crecen usan paginacion: ACTIVOS e INCIDENCIAS.
+Los CATALOGOS (ubicaciones, tipos de activo) y USUARIOS NO se paginan:
+son tablas pequenas y se devuelven completas.
+
+- La pagina es BASE 1 (la primera pagina es la 1). El servidor normaliza.
+- Parametros: ?pagina=N (por defecto 1) y ?tamano=N (por defecto 20, maximo 100).
+- La respuesta es un objeto, no una lista:
+  { contenido: [...], pagina, tamano, total, totalPaginas }
+- Los filtros se aplican ANTES de paginar: 'total' cuenta lo filtrado.
+- Una pagina fuera de rango devuelve 'contenido' vacio, no un error.
+- Los desplegables (selectores de activo) usan /api/activos/opciones: lista
+  completa y ligera (id, codigoPatrimonial, nombre), sin paginar.
+
 Errores con un formato uniforme (codigo HTTP + mensaje). Respuestas en DTO.
 
 ORDEN DE TRABAJO (vertical slices, cada uno funciona de punta a punta)
@@ -265,7 +291,9 @@ empezar hasta que lo otro este terminado.
 
   I4 Incidencias               bloqueado por: I1, I3
        reportar y dar seguimiento a fallas de un activo.
-       Vertical: reportar incidencia, listar por activo/estado, cambiar estado.
+       Vertical: reportar incidencia, listar por activo/estado, corregir.
+       (El estado ABIERTA -> EN_ATENCION -> CERRADA lo hace I5, no el
+        usuario. Ver REGLAS DE NEGOCIO.)
 
   I5 Mantenimiento correctivo  bloqueado por: I1, I3, I4
        flujo completo de un trabajo correctivo y su transicion de estados.
