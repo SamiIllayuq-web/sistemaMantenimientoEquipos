@@ -1,6 +1,6 @@
-package com.unh.mantenimiento.usuario.service;
+package com.unh.mantenimiento.comun.excepcion;
 
-/** Recurso duplicado (409): DNI o correo ya registrados. */
+/** Recurso duplicado (409): violate una restriccion de unicidad. */
 public class RecursoDuplicadoException extends RuntimeException {
 
     public RecursoDuplicadoException(String mensaje) {

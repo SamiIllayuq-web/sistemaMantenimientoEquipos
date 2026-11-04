@@ -1,5 +1,8 @@
 package com.unh.mantenimiento.usuario.service;
 
+import com.unh.mantenimiento.comun.excepcion.OperacionInvalidaException;
+import com.unh.mantenimiento.comun.excepcion.RecursoDuplicadoException;
+import com.unh.mantenimiento.comun.excepcion.RecursoNoEncontradoException;
 import com.unh.mantenimiento.modulo.Modulo;
 import com.unh.mantenimiento.modulo.ModuloRepository;
 import com.unh.mantenimiento.modulo.ResponsableModulo;

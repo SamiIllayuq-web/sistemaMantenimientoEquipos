@@ -1,0 +1,122 @@
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .catalogo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.catalogo-panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1.25rem;
+  box-shadow: var(--sombra);
+}
+
+.catalogo-campo {
+  margin-bottom: 0.85rem;
+}
+
+.catalogo-check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 500;
+  color: var(--color-texto);
+  cursor: pointer;
+  margin: 0;
+}
+
+.catalogo-check input {
+  width: auto;
+  cursor: pointer;
+}
+
+.catalogo-acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.catalogo-error,
+.catalogo-exito {
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radio);
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+}
+
+.catalogo-error {
+  background: var(--color-error-fondo);
+  border: 1px solid rgba(179, 38, 30, 0.25);
+  color: var(--color-error);
+}
+
+.catalogo-exito {
+  background: var(--color-exito-fondo);
+  border: 1px solid rgba(31, 111, 74, 0.25);
+  color: var(--color-primario-oscuro);
+}
+
+.catalogo-vacio,
+.catalogo-cargando {
+  color: var(--color-texto-suave);
+}
+
+.catalogo-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.catalogo-tabla th {
+  text-align: left;
+  padding: 0.55rem 0.5rem;
+  border-bottom: 2px solid var(--color-borde);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-texto-suave);
+}
+
+.catalogo-tabla td {
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+
+.catalogo-detalle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--color-texto-suave);
+}
+
+.catalogo-detalle strong {
+  color: var(--color-texto);
+  font-weight: 600;
+}
+
+.catalogo-fila-acciones {
+  display: flex;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.catalogo-fila-acciones button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.catalogo-fila-acciones button.secundario {
+  background: transparent;
+  border-color: var(--color-borde);
+  color: var(--color-texto);
+}

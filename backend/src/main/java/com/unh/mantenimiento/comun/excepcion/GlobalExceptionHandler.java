@@ -3,12 +3,11 @@ package com.unh.mantenimiento.comun.excepcion;
 import com.unh.mantenimiento.comun.dto.ErrorResponse;
 import com.unh.mantenimiento.seguridad.service.CredencialesInvalidasException;
 import com.unh.mantenimiento.seguridad.service.UsuarioBloqueadoException;
-import com.unh.mantenimiento.usuario.service.OperacionInvalidaException;
-import com.unh.mantenimiento.usuario.service.RecursoDuplicadoException;
-import com.unh.mantenimiento.usuario.service.RecursoNoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -74,6 +73,26 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> operacionInvalida(OperacionInvalidaException e) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(ErrorResponse.de(422, "UNPROCESSABLE_ENTITY", e.getMessage()));
+    }
+
+    /**
+     * Acceso denegado: el usuario esta autenticado pero no tiene la autoridad
+     * que exige el endpoint (p.ej. MOD_UBICACIONES).
+     * Debe declararse ANTES del handler generico de Exception, porque
+     * AuthorizationDeniedException es una RuntimeException.
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> accesoDenegado(AuthorizationDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.de(403, "FORBIDDEN",
+                        "No tienes permiso para realizar esta accion"));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> accesoDenegadoClase(AccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.de(403, "FORBIDDEN",
+                        "No tienes permiso para realizar esta accion"));
     }
 
     @ExceptionHandler(Exception.class)

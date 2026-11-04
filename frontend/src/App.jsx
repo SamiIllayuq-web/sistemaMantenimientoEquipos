@@ -3,6 +3,8 @@ import { ProveedorSesion, useSesion } from './contexto/Sesion'
 import Login from './paginas/Login'
 import Layout from './paginas/Layout'
 import Usuarios from './paginas/Usuarios'
+import Ubicaciones from './paginas/Ubicaciones'
+import TiposActivo from './paginas/TiposActivo'
 import './App.css'
 
 /** Protege una ruta: exige sesion activa. */
@@ -79,8 +81,8 @@ export default function App() {
         >
           <Route index element={<Inicio />} />
           <Route path="usuarios" element={<Usuarios />} />
-          <Route path="ubicaciones" element={<EnConstruccion modulo="Ubicaciones" />} />
-          <Route path="tipos-activo" element={<EnConstruccion modulo="Tipos de activo" />} />
+          <Route path="ubicaciones" element={<Ubicaciones />} />
+          <Route path="tipos-activo" element={<TiposActivo />} />
           <Route path="activos" element={<EnConstruccion modulo="Activos" />} />
           <Route path="incidencias" element={<EnConstruccion modulo="Incidencias" />} />
           <Route path="mantenimientos" element={<EnConstruccion modulo="Mantenimientos" />} />

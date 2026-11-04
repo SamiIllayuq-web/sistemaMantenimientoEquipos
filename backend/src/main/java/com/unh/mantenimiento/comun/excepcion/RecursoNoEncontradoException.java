@@ -1,4 +1,4 @@
-package com.unh.mantenimiento.usuario.service;
+package com.unh.mantenimiento.comun.excepcion;
 
 /** Recurso no encontrado (404). */
 public class RecursoNoEncontradoException extends RuntimeException {
