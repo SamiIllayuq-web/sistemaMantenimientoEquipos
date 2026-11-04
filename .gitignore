@@ -1,0 +1,25 @@
+# Credenciales: NUNCA subir al repositorio
+.env
+.env.local
+*.env
+
+# Java / Maven
+backend/target/
+*.class
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Evidencias (nunca deben estar en el repo)
+evidencias/

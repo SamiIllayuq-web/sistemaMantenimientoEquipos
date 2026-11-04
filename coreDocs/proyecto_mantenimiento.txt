@@ -1,0 +1,302 @@
+PROYECTO: Sistema de mantenimiento de la Residencia Universitaria (UNH)
+=======================================================================
+
+QUE ES
+------
+Aplicacion web para registrar los activos de la residencia universitaria de la
+Universidad Nacional de Huancavelica (equipos e infraestructura), reportar sus
+fallas (incidencias) y controlar los mantenimientos que se les hacen, con sus
+evidencias (fotos e informes). Lo usa una sola institucion: el volumen es pequeno.
+El diseno no depende del lugar (sirve igual para laboratorios y otras
+universidades): ubicaciones, tipos de activo y activos son datos configurables.
+Es un proyecto academico: el codigo debe ser simple, ligero y facil de entender.
+
+EJEMPLOS DE DATOS (solo para orientarse)
+---------------------------------------
+Ubicaciones: Habitacion 101, Comedor, Cocina, Lavanderia, Sala de estudio, Laboratorio.
+Tipos de activo: equipo de cocina, equipo electrico, equipo informatico,
+  instalacion electrica, instalacion sanitaria, ambiente.
+Activos: cocina industrial, terma, lavadora, computadora, tablero electrico.
+Incidencia: "la terma no calienta". Mantenimiento correctivo: cambio de resistencia.
+
+ACTORES
+-------
+No hay tabla de roles. Los permisos se dan por MODULO (menu o pantalla).
+Todos los usuarios viven en la misma tabla: responsable.
+
+1. Administrador: tiene todos los modulos. Crea usuarios y decide que modulos
+   ve y usa cada uno. Es quien tiene el modulo USUARIOS.
+2. Responsable: usa solo los modulos que el administrador le asigne. Normalmente
+   registra activos, incidencias y mantenimientos y sube evidencias.
+
+No existe registro publico: solo el administrador crea usuarios.
+
+STACK
+-----
+- Base de datos: PostgreSQL
+- Migraciones: Flyway (un script SQL por incremento: V1__..., V2__...)
+- Backend: Java (LTS vigente) + Spring Boot
+  Spring Web, Spring Data JPA, Spring Security (BCrypt + JWT), Bean Validation
+- Frontend: JavaScript con React + Vite, en el MISMO repositorio, carpeta 'frontend/'
+  separada de 'backend/'. Consume la API REST.
+- Puertos (ESTO OCUPADO, no cambiar): 8080 y 5173 ya los usa otro proyecto.
+  Backend en 8081, frontend Vite en 5174.
+- Git + GitHub: remoto https://github.com/SamiIllayuq-web/sistemaMantenimientoEquipos.git
+- Sin Docker por ahora. Se usa recien en el despliegue (VPS).
+- Archivos de evidencias: carpeta del servidor (ruta en la variable de entorno
+  EVIDENCIAS_DIR), no dentro de la base de datos
+- Pruebas: JUnit 5 + Spring Boot Test. TDD OBLIGATORIO (rojo -> verde -> refactor).
+  Base de pruebas: PostgreSQL local dedicada (p.ej. 'mantenimiento_test') con Flyway
+  y datos de prueba, en vez de H2 (mismo motor real, sin sorpresas de dialecto).
+  Los tests de Service son el feedback loop principal del desarrollo.
+- Hibernate: ddl-auto=validate (NUNCA crea ni modifica tablas; eso lo hace Flyway)
+- Secretos (clave JWT, password de la BD) en variables de entorno, nunca en el codigo
+
+ARQUITECTURA
+------------
+Monolito modular en capas. Sin microservicios.
+  Controller -> Service -> Repository -> PostgreSQL
+  Model = entidades JPA y enums.
+- Controller: recibe HTTP, valida entrada, responde DTO (nunca entidades).
+- Service: reglas de negocio y @Transactional.
+- Repository: solo acceso a datos (Spring Data JPA).
+- Un controller nunca llama a un repository directamente.
+
+Paquetes por funcionalidad (cada uno con controller, service, repository, model, dto):
+  com.unh.mantenimiento
+    seguridad/  usuario/  ubicacion/  tipoactivo/  activo/  incidencia/  mantenimiento/  evidencia/  comun/
+
+Nombres: tablas y columnas tal cual estan abajo (snake_case en espanol).
+Clases Java en PascalCase sobre esos mismos nombres (Activo, Incidencia, ...).
+
+ALCANCE DE LA VERSION 1
+-----------------------
+Incluye: iniciar sesion, usuarios y permisos, ubicaciones, tipos de activo,
+activos, incidencias, mantenimiento correctivo y evidencias.
+
+Despues de la V1 (NO construir todavia): repuestos y stock, historial de estados,
+plan de mantenimiento y preventivo, alertas, reportes PDF/Excel, data warehouse
+y BI, despliegue.
+
+Modulos (codigo -> pantalla):
+  USUARIOS       Usuarios y permisos
+  UBICACIONES    Ubicaciones
+  TIPOS_ACTIVO   Tipos de activo
+  ACTIVOS        Activos
+  INCIDENCIAS    Incidencias
+  MANTENIMIENTOS Mantenimiento correctivo
+  EVIDENCIAS     Evidencias (fotos e informes de un mantenimiento)
+  (futuro: REPUESTOS, PLANES)
+
+BASE DE DATOS (tablas de la V1)
+-------------------------------
+Dos bases de datos PostgreSQL locales separadas (NO dos schemas en una):
+  mantenimiento       -> la de desarrollo (datos reales de prueba manual)
+  mantenimiento_test  -> la de pruebas automatizadas (se borra y recrea sola)
+Se crea el usuario de la app 'unh_mantenimiento' con permisos sobre ambas.
+Las credenciales van en variables de entorno (ver SECRETS), nunca en el codigo.
+
+responsable
+  dni CHAR(8) PK, nombres, apellidos, correo UNIQUE, clave_hash, telefono NULL,
+  estado ('ACTIVO'|'INACTIVO', default 'ACTIVO'), fecha_registro (default ahora),
+  intentos_fallidos SMALLINT default 0, bloqueado_hasta NULL, ultimo_acceso NULL
+
+modulo
+  id_modulo SERIAL PK, codigo UNIQUE, nombre, descripcion NULL
+
+responsable_modulo
+  id_responsable FK->responsable.dni, id_modulo FK->modulo, PK compuesta
+
+ubicacion
+  id_ubicacion SERIAL PK, nombre, tipo_ubicacion, pabellon NULL, piso NULL, descripcion NULL
+
+tipo_activo
+  id_tipo_activo SERIAL PK, nombre, categoria ('EQUIPO'|'INFRAESTRUCTURA'),
+  descripcion NULL, requiere_mantenimiento BOOLEAN default true, vida_util_anios NULL
+
+activo
+  id_activo SERIAL PK, id_tipo_activo FK, id_ubicacion FK,
+  codigo_patrimonial UNIQUE, nombre, marca NULL, modelo NULL, numero_serie NULL,
+  fecha_adquisicion NULL, fecha_puesta_servicio NULL, estado_operativo,
+  valor_adquisicion DECIMAL(12,2) NULL, observaciones NULL, fecha_registro
+
+incidencia
+  id_incidencia SERIAL PK, id_activo FK, fecha_deteccion_incidencia TIMESTAMP,
+  descripcion, prioridad_incidencia, estado_incidencia,
+  fecha_cierre_incidencia NULL, observaciones_incidencia NULL
+
+mantenimiento
+  id_mantenimiento SERIAL PK, id_activo FK, id_responsable FK->responsable.dni,
+  id_incidencia FK NULL, tipo_mantenimiento ('PREVENTIVO'|'CORRECTIVO'),
+  fecha_inicio TIMESTAMP, fecha_fin NULL, diagnostico NULL, actividad_realizada NULL,
+  resultado NULL, estado_mantenimiento, horas_inactividad NULL,
+  costo_mano_obra DECIMAL(10,2) default 0, proxima_fecha_mantenimiento NULL,
+  observaciones_mantenimiento NULL
+  CHECK: PREVENTIVO => id_incidencia NULL; CORRECTIVO => id_incidencia NOT NULL
+  (en la V1 solo se registran CORRECTIVO)
+
+evidencia_mantenimiento
+  id_evidencia SERIAL PK, id_mantenimiento FK, tipo_archivo, nombre_archivo,
+  nombre_original VARCHAR(255), descripcion_evidencia NULL,
+  fecha_registro_evidencia (default ahora)
+  nombre_archivo = nombre generado con que se guarda el archivo en disco (UUID + extension)
+  nombre_original = nombre del archivo que subio el usuario (solo para mostrarlo)
+
+Tablas de despues de la V1 (no crear aun): plan_mantenimiento, repuesto,
+mantenimiento_repuesto, historial_estado_mantenimiento.
+
+Datos iniciales (migracion): los 7 modulos y un usuario administrador con todos
+los modulos asignados.
+
+Valores controlados (propuesta; enum en Java + CHECK en BD):
+  activo.estado_operativo:        OPERATIVO | EN_MANTENIMIENTO | FUERA_DE_SERVICIO
+  incidencia.prioridad:           ALTA | MEDIA | BAJA
+  incidencia.estado:              ABIERTA | EN_ATENCION | CERRADA
+  mantenimiento.estado:           EN_PROCESO | FINALIZADO | CANCELADO
+  evidencia.tipo_archivo:         FOTO | INFORME | OTRO
+
+REGLAS DE NEGOCIO
+-----------------
+- codigo_patrimonial, correo y dni son unicos.
+- Todo activo tiene tipo y ubicacion. Toda incidencia pertenece a un activo.
+- Un mantenimiento correctivo siempre tiene incidencia.
+- id_responsable del mantenimiento = usuario que inicio sesion.
+- fecha_fin no puede ser anterior a fecha_inicio. costo_mano_obra >= 0.
+- Al crear el mantenimiento: incidencia -> EN_ATENCION, activo -> EN_MANTENIMIENTO.
+- Al finalizarlo: incidencia -> CERRADA (con fecha de cierre), activo -> OPERATIVO
+  (estas dos reglas de estados estan por validar).
+- No se borran registros con datos relacionados: se desactivan.
+- Un activo puede tener varias incidencias abiertas.
+- Solo inician sesion los usuarios ACTIVO.
+- Una evidencia siempre pertenece a un mantenimiento existente.
+
+SEGURIDAD (aplicacion)
+----------------------
+- Contrasenas con BCrypt, minimo 8 caracteres. Nunca se devuelve clave_hash.
+- Login devuelve JWT de corta duracion + datos del usuario + lista de modulos.
+- Cada modulo es una autoridad de Spring Security (ej. MOD_ACTIVOS) y cada
+  endpoint exige la suya. El servidor valida; ocultar el menu en el frontend no basta.
+- 5 intentos fallidos => bloqueo temporal. El error no dice si fallo usuario o clave.
+- Consultas parametrizadas (JPA). Entradas validadas con Bean Validation.
+- Los catalogos (ubicaciones, tipos) para listas desplegables se leen por
+  endpoints de solo lectura abiertos a cualquier usuario con sesion (por confirmar).
+- No se puede quitar el modulo USUARIOS ni desactivar al ultimo usuario que lo tenga.
+- CORS solo para el origen del frontend.
+- Evidencias (propuesta): solo JPG, PNG y PDF, maximo 10 MB, validados en el servidor.
+  El archivo se guarda con nombre generado (nunca el nombre que envia el usuario)
+  en una carpeta no publica, y se entrega solo por un endpoint que exige sesion y
+  el modulo EVIDENCIAS.
+
+API (convencion)
+----------------
+REST bajo /api: /api/auth/login, /api/auth/me, /api/usuarios, /api/ubicaciones,
+/api/tipos-activo, /api/activos, /api/incidencias, /api/mantenimientos,
+/api/mantenimientos/{id}/evidencias (subir y listar, multipart),
+/api/evidencias/{id}/archivo (descargar).
+Errores con un formato uniforme (codigo HTTP + mensaje). Respuestas en DTO.
+
+ORDEN DE TRABAJO (vertical slices, cada uno funciona de punta a punta)
+----------------------------------------------------------------------------
+Cada incremento es una TIRA VERTICAL: migracion Flyway + entidad + repository
++ service (con tests TDD) + endpoint + pantalla React minima. Al terminar el
+incremento la functionality es USABLE de punta a punta, no un esqueleto.
+
+Dependencias de bloqueo (DAG). 'bloqueado por' significa que no se puede
+empezar hasta que lo otro este terminado.
+
+  I0 Preparacion              bloqueado por: nada
+       repo + git + GitHub, proyecto Spring Boot, proyecto React+Vite,
+       PostgreSQL local (mantenimiento y mantenimiento_test), Flyway,
+       script de arranque de la app con datos demo.
+
+  I1 Autenticacion + Usuarios  bloqueado por: I0
+       login (JWT + bloqueo por intentos), tabla responsable, admin inicial,
+       tabla modulo, permisos por modulo, pantalla de usuarios, menu dinamico.
+       Vertical: login real -> ver perfil ->(admin) manage usuarios y permisos.
+
+  I2 Catalogos                 bloqueado por: I0
+       ubicaciones y tipos de activo completos (schema + API + pantallas).
+       Vertical: se pueden crear, listar, editar y desactivar desde la UI.
+       (No dependen de I1 en el backend: son catalogos publicos de lectura.)
+
+  I3 Activos                   bloqueado por: I1, I2
+       registro y gestion de activos (codigo patrimonial, estado, filtros).
+       Vertical: registrar activo completo, buscar, ver detalle, desactivar.
+
+  I4 Incidencias               bloqueado por: I1, I3
+       reportar y dar seguimiento a fallas de un activo.
+       Vertical: reportar incidencia, listar por activo/estado, cambiar estado.
+
+  I5 Mantenimiento correctivo  bloqueado por: I1, I3, I4
+       flujo completo de un trabajo correctivo y su transicion de estados.
+       Vertical: crear desde incidencia, finalizar, ver historial del activo.
+
+  I6 Evidencias                bloqueado por: I1, I5
+       subir, listar y descargar fotos e informes de un mantenimiento.
+       Vertical: subir foto -> ver en detalle -> descargar.
+
+  I7 Cierre                    bloqueado por: I1..I6
+       revision manual completa y de seguridad.
+
+Paralelismo posible: I2 || I3 (tras I0/I1), y las pantallas de un mismo
+incremento se pueden repartir entre agentes. El DAG no es una lista: es un
+grafo, por eso I2 e I3 no se bloquean entre si.
+
+PUNTOS POR CONFIRMAR
+--------------------
+- Permisos: por pantalla completa (propuesto) o tambien por accion (ver/crear/editar).
+- Valores de estado y reglas de estados de arriba.
+- React Router y Bootstrap para el frontend (propuestos).
+- Tipos y tamano maximo de archivos de evidencias (propuesta: JPG, PNG, PDF, 10 MB).
+
+COMO TRABAJAR
+-------------
+La metodologia de trabajo es la de 'coreDocs/matt.txt' (Matt Pocock) y es la
+fuente de verdad para COMO se trabaja, no solo QUE se construye. El doc
+'proyecto_mantenimiento.txt' describe el QUE; ante conflicto, la metodologia
+manda y este doc se actualiza.
+
+Ciclo de trabajo (5 fases, ver matt.txt):
+  1) Grilling (HITL)     - preguntas de una en una con respuesta recomendada
+                            hasta alcanzar understanding compartido.
+  2) PRD (HITL)           - documento de DESTINO: que + definicion de done.
+  3) Kanban (HITL)        - issues en .md locales con dependencias de bloqueo
+                            (DAG paralelizable), no una lista secuencial.
+  4) Implementar (AFK)    - vertical slices, TDD, feedback loops, commits atomicos.
+  5) QA + revision (HITL) - la revision humana impone el criterio. El QA genera
+                            nuevas issues para el Kanban.
+
+Reglas que no se negocian:
+- Vertical slices: cada incremento cruza schema + service + endpoint + pantalla
+  minima. NUNCA trabajar por capas horizontales (schema, luego API, luego UI).
+- TDD obligatorio: test que falla primero, luego implementacion, luego refactor.
+  Los tests de Service son el feedback loop principal.
+- La calidad de los feedback loops es el techo de la calidad del trabajo.
+- Deep modules (Ousterhout): interfaz pequena y simple, logica densa adentro.
+  El Service es el modulo profundo; el Controller es su fachada fina.
+- Contexto limpio: nunca compactar ni arrastrar sesiones. Reset y seguir.
+- Doc rot: el PRD se borra del repo cuando el trabajo esta implementado.
+- Cada cambio de BD va en un nuevo script de Flyway; nunca editar uno ya aplicado.
+- Simple primero: nada de microservicios, ni capas extra, ni abstracciones sin uso.
+- No construir nada fuera del alcance del incremento vigente.
+- Ante una duda de negocio, preguntar antes de asumir.
+- Despues de cada migracion, regenerar docs/schema.json (guia de columnas):
+
+  SELECT jsonb_pretty(jsonb_object_agg(t.table_name, t.def))
+  FROM (
+    SELECT c.table_name,
+           jsonb_build_object('columns', jsonb_agg(jsonb_build_object(
+             'name', c.column_name, 'type', c.data_type,
+             'max_length', c.character_maximum_length,
+             'nullable', c.is_nullable = 'YES',
+             'default', c.column_default
+           ) ORDER BY c.ordinal_position)) AS def
+    FROM information_schema.columns c
+    WHERE c.table_schema = 'public' AND c.table_name <> 'flyway_schema_history'
+    GROUP BY c.table_name
+  ) t;
+
+FUERA DE ALCANCE POR AHORA
+--------------------------
+Despliegue en Contabo (HTTPS, Nginx, firewall), Docker, respaldos automaticos,
+monitoreo, data warehouse y BI. Se ven cuando el sistema funcional este terminado.
