@@ -57,12 +57,24 @@ cp .env.example .env
 
 ```bash
 cd backend
-set -a; source ../.env; set +a
 ./mvnw spring-boot:run          # http://localhost:8081
 ```
 
+El `.env` de la raiz del repo se carga solo (`spring.config.import`), asi que
+NO hace falta `set -a; source ../.env`.
+
 Las migraciones de Flyway se aplican solas al arrancar (`ddl-auto=validate`:
 la app NUNCA crea ni modifica tablas).
+
+### 3b. Usar Supabase en vez de la BD local
+
+```bash
+bash scripts/configurar_supabase.sh        # pide project ref, host, puerto y clave
+bash scripts/configurar_supabase.sh --local # vuelve a la BD local
+```
+
+Usa el **pooler de sesion (puerto 5432)**: el de transaccion (6543) no
+soporta los prepared statements que usa Hibernate.
 
 ### 4. Frontend
 
