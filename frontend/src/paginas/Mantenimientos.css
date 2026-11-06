@@ -1,0 +1,184 @@
+.mantenimientos-filtros {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.mantenimientos-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mantenimientos-filtro select {
+  min-width: 200px;
+}
+
+.mantenimientos-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* Sin min-width 0 el item del grid no puede encogerse por debajo del
+   contenido y la tabla se desborda en vez de hacer scroll horizontal. */
+.mantenimientos-grid > * {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .mantenimientos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mantenimientos-panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1.25rem;
+  box-shadow: var(--sombra);
+  overflow-x: auto;
+}
+
+.mantenimientos-campo {
+  margin-bottom: 0.8rem;
+}
+
+.mantenimientos-campo-doble {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.mantenimientos-campo-doble label {
+  margin-top: 0;
+}
+
+.mantenimientos-campo textarea {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  width: 100%;
+  resize: vertical;
+}
+
+.mantenimientos-acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.mantenimientos-error,
+.mantenimientos-exito {
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radio);
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+}
+
+.mantenimientos-error {
+  background: var(--color-error-fondo);
+  border: 1px solid rgba(179, 38, 30, 0.25);
+  color: var(--color-error);
+}
+
+.mantenimientos-exito {
+  background: var(--color-exito-fondo);
+  border: 1px solid rgba(31, 111, 74, 0.25);
+  color: var(--color-primario-oscuro);
+}
+
+.mantenimientos-vacio,
+.mantenimientos-cargando {
+  color: var(--color-texto-suave);
+}
+
+.mantenimientos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.mantenimientos-tabla th {
+  text-align: left;
+  padding: 0.55rem 0.5rem;
+  border-bottom: 2px solid var(--color-borde);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-texto-suave);
+}
+
+.mantenimientos-tabla td {
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+
+.mantenimientos-sub {
+  display: block;
+  color: var(--color-texto-suave);
+  font-size: 0.78rem;
+}
+
+.mantenimientos-fecha {
+  white-space: nowrap;
+  font-size: 0.82rem;
+  color: var(--color-texto-suave);
+}
+
+.mantenimientos-tipo,
+.mantenimientos-estado {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.mantenimientos-tipo.correctivo {
+  background: #fff4e0;
+  color: #8a5a00;
+}
+
+.mantenimientos-tipo.preventivo {
+  background: #eef2f6;
+  color: var(--color-texto-suave);
+}
+
+.mantenimientos-estado.en_proceso {
+  background: #fff4e0;
+  color: #8a5a00;
+}
+
+.mantenimientos-estado.finalizado {
+  background: var(--color-exito-fondo);
+  color: var(--color-primario-oscuro);
+}
+
+.mantenimientos-fila-acciones {
+  display: flex;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.mantenimientos-fila-acciones button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.mantenimientos-fila-acciones button.exito {
+  background: var(--color-exito-fondo);
+  border-color: rgba(31, 111, 74, 0.35);
+  color: var(--color-primario-oscuro);
+}
+
+.mantenimientos-bloqueada {
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+}
