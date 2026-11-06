@@ -185,3 +185,84 @@
   border-color: var(--color-borde);
   color: var(--color-texto);
 }
+
+/* --- Panel deslizante del historial de mantenimientos --- */
+
+.historial-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 100;
+}
+
+.historial-cajon {
+  background: var(--color-panel);
+  width: min(720px, 92vw);
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-shadow: -4px 0 18px rgba(0, 0, 0, 0.25);
+}
+
+.historial-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.historial-cabecera h2 {
+  margin: 0 0 0.25rem;
+}
+
+.historial-cabecera p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+}
+
+.historial-cerrar {
+  background: transparent;
+  border-color: var(--color-borde);
+  color: var(--color-texto);
+  padding: 0.3rem 0.65rem;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.historial-vacio {
+  color: var(--color-texto-suave);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.historial-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.historial-tabla th {
+  text-align: left;
+  padding: 0.5rem 0.4rem;
+  border-bottom: 2px solid var(--color-borde);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-texto-suave);
+}
+
+.historial-tabla td {
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+
+.historial-detalle {
+  display: block;
+  color: var(--color-texto-suave);
+  font-size: 0.8rem;
+}

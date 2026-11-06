@@ -56,6 +56,18 @@ public interface IncidenciaUnhRepository extends JpaRepository<IncidenciaUnh, In
     @Query("SELECT i FROM IncidenciaUnh i WHERE i.idIncidencia = :id")
     Optional<IncidenciaUnh> buscarDetalle(@Param("id") Integer id);
 
+    /**
+     * Incidencias ABIERTAS para los desplegables (selectores).
+     * Sin paginar a proposito: un selector debe ofrecer todas las opciones.
+     */
+    @EntityGraph(attributePaths = {"activo"})
+    @Query("""
+            SELECT i FROM IncidenciaUnh i
+            WHERE i.estado = 'ABIERTA'
+            ORDER BY i.fechaDeteccion DESC, i.idIncidencia DESC
+            """)
+    List<IncidenciaUnh> findAbiertas();
+
     /** Incidencias abiertas de un activo (regla: un activo puede tener varias). */
     @Query("SELECT COUNT(i) FROM IncidenciaUnh i "
             + "WHERE i.activo.idActivo = :idActivo AND i.estado <> 'CERRADA'")

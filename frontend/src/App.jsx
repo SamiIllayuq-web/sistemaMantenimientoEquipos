@@ -7,6 +7,8 @@ import Ubicaciones from './paginas/Ubicaciones'
 import TiposActivo from './paginas/TiposActivo'
 import Activos from './paginas/Activos'
 import Incidencias from './paginas/Incidencias'
+import Mantenimientos from './paginas/Mantenimientos'
+import Evidencias from './paginas/Evidencias'
 import './App.css'
 
 /** Protege una ruta: exige sesion activa. */
@@ -58,16 +60,6 @@ function Inicio() {
   )
 }
 
-/** Pantallas de modulos que todavia no se han construido. */
-function EnConstruccion({ modulo }) {
-  return (
-    <div className="en-construccion">
-      <h1>{modulo}</h1>
-      <p>Este modulo se construye en los siguientes incrementos.</p>
-    </div>
-  )
-}
-
 export default function App() {
   return (
     <ProveedorSesion>
@@ -87,8 +79,8 @@ export default function App() {
           <Route path="tipos-activo" element={<TiposActivo />} />
           <Route path="activos" element={<Activos />} />
           <Route path="incidencias" element={<Incidencias />} />
-          <Route path="mantenimientos" element={<EnConstruccion modulo="Mantenimientos" />} />
-          <Route path="evidencias" element={<EnConstruccion modulo="Evidencias" />} />
+          <Route path="mantenimientos" element={<Mantenimientos />} />
+          <Route path="evidencias" element={<Evidencias />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

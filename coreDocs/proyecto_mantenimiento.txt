@@ -241,12 +241,24 @@ API (convencion)
 ----------------
 REST bajo /api: /api/auth/login, /api/auth/me, /api/usuarios, /api/ubicaciones,
 /api/tipos-activo, /api/activos, /api/incidencias, /api/mantenimientos,
-/api/mantenimientos/{id}/evidencias (subir y listar, multipart),
-/api/evidencias/{id}/archivo (descargar).
+/api/evidencias.
+
+- /api/activos/opciones y /api/incidencias/opciones: selectores sin paginar.
+- /api/mantenimientos/activo/{idActivo}: historial de mantenimientos de un activo.
+- /api/evidencias/mantenimiento/{idMantenimiento}: listar (paginado) y subir
+  (multipart, campo 'archivo' + campo 'datos' en JSON).
+- /api/evidencias/{id}/descargar: descarga el archivo (exige sesion + modulo).
+- /api/evidencias/{id}: eliminar (borra el archivo de disco y su registro).
+
+Evidencias: solo JPG, PNG y PDF, maximo 10 MB. El archivo se guarda con un
+nombre GENERADO (UUID) en EVIDENCIAS_DIR; el nombre que envio el usuario solo
+se conserva como 'nombre_original' para mostrarlo. Todo el modulo EVIDENCIAS
+(lectura, subida, descarga y borrado) exige la autoridad MOD_EVIDENCIAS.
 
 PAGINACION (convencion)
 ------------------------
-Los listados que crecen usan paginacion: ACTIVOS e INCIDENCIAS.
+Los listados que crecen usan paginacion: ACTIVOS, INCIDENCIAS, MANTENIMIENTOS
+y las EVIDENCIAS de un mantenimiento.
 Los CATALOGOS (ubicaciones, tipos de activo) y USUARIOS NO se paginan:
 son tablas pequenas y se devuelven completas.
 
@@ -256,10 +268,27 @@ son tablas pequenas y se devuelven completas.
   { contenido: [...], pagina, tamano, total, totalPaginas }
 - Los filtros se aplican ANTES de paginar: 'total' cuenta lo filtrado.
 - Una pagina fuera de rango devuelve 'contenido' vacio, no un error.
-- Los desplegables (selectores de activo) usan /api/activos/opciones: lista
-  completa y ligera (id, codigoPatrimonial, nombre), sin paginar.
+- Los desplegables (selectores) usan /api/activos/opciones y
+  /api/incidencias/opciones: lista completa y ligera, sin paginar. Un
+  selector paginado se rompe cuando hay mas registros que paginas.
 
 Errores con un formato uniforme (codigo HTTP + mensaje). Respuestas en DTO.
+Los codigos que usa el servidor:
+  400 = peticion invalida (validacion de Bean Validation)
+  401 = sin token o token invalido
+  403 = autenticado pero sin el modulo que exige el endpoint
+  404 = el recurso no existe
+  409 = recurso duplicado (codigo patrimonial, correo o DNI repetido)
+  422 = regla de negocio violada (OperacionInvalidaException)
+  423 = usuario bloqueado por intentos fallidos
+
+FECHAS Y HORAS (regla importante)
+---------------------------------
+El frontend envia las fechas en HORA LOCAL, sin convertirlas a UTC. El
+servidor (Java/PostgreSQL) valida contra su propio reloj con @PastOrPresent,
+asi que convertir a UTC (toISOString()) en un navegador en UTC-5 envia una
+hora 5 horas por delante y el servidor la rechaza como "fecha futura".
+El modulo util/fechas.js del frontend centraliza esta regla.
 
 ORDEN DE TRABAJO (vertical slices, cada uno funciona de punta a punta)
 ----------------------------------------------------------------------------
@@ -298,13 +327,25 @@ empezar hasta que lo otro este terminado.
   I5 Mantenimiento correctivo  bloqueado por: I1, I3, I4
        flujo completo de un trabajo correctivo y su transicion de estados.
        Vertical: crear desde incidencia, finalizar, ver historial del activo.
+       ESTADO: COMPLETADO. Backend + frontend + 14 tests de servicio.
+       Transiciones: crear correctivo -> incidencia EN_ATENCION y activo
+       EN_MANTENIMIENTO; finalizar -> incidencia CERRADA y activo OPERATIVO.
+       El preventivo se registra sin incidencia y no cambia ningun estado.
 
   I6 Evidencias                bloqueado por: I1, I5
        subir, listar y descargar fotos e informes de un mantenimiento.
        Vertical: subir foto -> ver en detalle -> descargar.
+       ESTADO: COMPLETADO. Backend + frontend + 12 tests de servicio.
+       Sin migracion nueva: la tabla evidencia_mantenimiento_unh ya existia.
+       Todo el modulo exige MOD_EVIDENCIAS, incluida la descarga.
 
   I7 Cierre                    bloqueado por: I1..I6
        revision manual completa y de seguridad.
+       ESTADO: COMPLETADO. 102 tests verdes en total. Se anadio:
+       - FlujoCompletoIntegrationTest: recorre activo -> incidencia ->
+         correctivo -> cierre y verifica las transiciones entre modulos.
+       - SeguridadPorModuloTest: comprueba con codigos reales que cada
+         endpoint de escritura rechaza al usuario sin su modulo.
 
 Paralelismo posible: I2 || I3 (tras I0/I1), y las pantallas de un mismo
 incremento se pueden repartir entre agentes. El DAG no es una lista: es un

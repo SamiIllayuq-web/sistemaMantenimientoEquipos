@@ -3,6 +3,7 @@ import api from '../api/cliente'
 import Paginacion from '../componentes/Paginacion'
 import '../componentes/Paginacion.css'
 import { useSesion } from '../contexto/Sesion'
+import { formatearFecha } from '../util/fechas'
 import './Activos.css'
 
 const FORMULARIO_VACIO = {
@@ -29,6 +30,9 @@ const ESTADOS_OPERATIVOS = [
 export default function Activos() {
   const { tieneModulo } = useSesion()
   const puedeEscribir = tieneModulo('ACTIVOS')
+  // El historial de mantenimientos es lectura del modulo MANTENIMIENTOS:
+  // el boton solo aparece si el usuario lo tiene.
+  const puedeVerHistorial = tieneModulo('MANTENIMIENTOS')
 
   const [activos, setActivos] = useState([])
   const [tipos, setTipos] = useState([])
@@ -45,6 +49,11 @@ export default function Activos() {
   const [tamano, setTamano] = useState(20)
   const [total, setTotal] = useState(0)
   const [totalPaginas, setTotalPaginas] = useState(0)
+
+  // Historial de mantenimientos del activo abierto en el panel deslizante.
+  const [historialActivo, setHistorialActivo] = useState(null)
+  const [historial, setHistorial] = useState([])
+  const [cargandoHistorial, setCargandoHistorial] = useState(false)
 
   const cargarActivos = useCallback(async () => {
     const params = { pagina, tamano }
@@ -104,6 +113,26 @@ export default function Activos() {
   function cambiarTamano(nuevoTamano) {
     setTamano(nuevoTamano)
     setPagina(1)
+  }
+
+  /** Abre el panel con el historial de mantenimientos del activo. */
+  async function abrirHistorial(activo) {
+    setHistorialActivo(activo)
+    setHistorial([])
+    setCargandoHistorial(true)
+    try {
+      const respuesta = await api.get(`/mantenimientos/activo/${activo.id}`)
+      setHistorial(respuesta.data)
+    } catch (fallo) {
+      setError(fallo.response?.data?.mensaje ?? 'No se pudo cargar el historial')
+    } finally {
+      setCargandoHistorial(false)
+    }
+  }
+
+  function cerrarHistorial() {
+    setHistorialActivo(null)
+    setHistorial([])
   }
 
   function editar(activo) {
@@ -412,7 +441,7 @@ export default function Activos() {
                   <th>Ubicacion</th>
                   <th>Tipo</th>
                   <th>Estado op.</th>
-                  {puedeEscribir && <th></th>}
+                  {(puedeEscribir || puedeVerHistorial) && <th></th>}
                 </tr>
               </thead>
               <tbody>
@@ -435,23 +464,36 @@ export default function Activos() {
                         {activo.estadoOperativo}
                       </span>
                     </td>
-                    {puedeEscribir && (
+                    {(puedeEscribir || puedeVerHistorial) && (
                       <td className="activos-fila-acciones">
-                        <button type="button" onClick={() => editar(activo)}>
-                          Editar
-                        </button>
-                        {activo.estado === 'ACTIVO' ? (
+                        {puedeVerHistorial && (
                           <button
                             type="button"
-                            className="peligro"
-                            onClick={() => desactivar(activo.id)}
+                            className="secundario"
+                            onClick={() => abrirHistorial(activo)}
                           >
-                            Desactivar
+                            Historial
                           </button>
-                        ) : (
-                          <button type="button" onClick={() => reactivar(activo.id)}>
-                            Reactivar
-                          </button>
+                        )}
+                        {puedeEscribir && (
+                          <>
+                            <button type="button" onClick={() => editar(activo)}>
+                              Editar
+                            </button>
+                            {activo.estado === 'ACTIVO' ? (
+                              <button
+                                type="button"
+                                className="peligro"
+                                onClick={() => desactivar(activo.id)}
+                              >
+                                Desactivar
+                              </button>
+                            ) : (
+                              <button type="button" onClick={() => reactivar(activo.id)}>
+                                Reactivar
+                              </button>
+                            )}
+                          </>
                         )}
                       </td>
                     )}
@@ -471,6 +513,79 @@ export default function Activos() {
           />
         </section>
       </div>
+
+      {/* Panel deslizante: historial de mantenimientos del activo. */}
+      {historialActivo && (
+        <div
+          className="historial-panel"
+          onClick={cerrarHistorial}
+          role="presentation"
+        >
+          <div
+            className="historial-cajon"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label={`Historial de ${historialActivo.nombre}`}
+          >
+            <div className="historial-cabecera">
+              <div>
+                <h2>{historialActivo.nombre}</h2>
+                <p>{historialActivo.codigoPatrimonial}</p>
+              </div>
+              <button
+                type="button"
+                className="historial-cerrar"
+                onClick={cerrarHistorial}
+              >
+                ×
+              </button>
+            </div>
+
+            {cargandoHistorial ? (
+              <p className="historial-vacio">Cargando historial...</p>
+            ) : historial.length === 0 ? (
+              <p className="historial-vacio">
+                Este activo no tiene mantenimientos registrados.
+              </p>
+            ) : (
+              <table className="historial-tabla">
+                <thead>
+                  <tr>
+                    <th>Inicio</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Detalle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historial.map((mantenimiento) => (
+                    <tr key={mantenimiento.id}>
+                      <td>{formatearFecha(mantenimiento.fechaInicio)}</td>
+                      <td>{mantenimiento.tipoMantenimiento}</td>
+                      <td>{mantenimiento.estadoMantenimiento}</td>
+                      <td>
+                        {mantenimiento.diagnostico && (
+                          <span className="historial-detalle">
+                            {mantenimiento.diagnostico}
+                          </span>
+                        )}
+                        <span className="historial-detalle">
+                          {mantenimiento.responsable.nombreCompleto}
+                        </span>
+                        {mantenimiento.incidencia && (
+                          <span className="historial-detalle">
+                            Incidencia #{mantenimiento.incidencia.id}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

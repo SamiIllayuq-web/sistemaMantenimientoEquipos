@@ -38,6 +38,18 @@ public final class IncidenciaDtos {
     ) {
     }
 
+    /**
+     * Version ligera de una incidencia, para los desplegables (selectores).
+     * Solo trae lo necesario para elegir: id, estado, descripcion y activo.
+     */
+    public record IncidenciaOpcion(
+            Integer id,
+            String estado,
+            String descripcion,
+            ActivoResumen activo
+    ) {
+    }
+
     /** Reporte de una incidencia. */
     public record CrearIncidenciaRequest(
             @NotNull(message = "Debe indicar el activo")

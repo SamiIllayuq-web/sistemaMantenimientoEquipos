@@ -22,6 +22,14 @@ public final class TipoActivoDtos {
     ) {
     }
 
+    /**
+     * Alta o edicion de un tipo de activo.
+     *
+     * `requiereMantenimiento` es `Boolean` (no `boolean`) a proposito: con un
+     * primitivo, Jackson exige que el campo este en el JSON y devuelve 400
+     * "El cuerpo de la peticion no es valido" si falta. Con el envoltorio se
+     * puede omitir y el servicio aplica el valor por defecto.
+     */
     public record TipoActivoRequest(
             @NotBlank(message = "El nombre es obligatorio")
             @Size(max = 100, message = "El nombre no puede pasar de 100 caracteres")
@@ -36,7 +44,7 @@ public final class TipoActivoDtos {
             @Size(max = 255, message = "La descripcion no puede pasar de 255 caracteres")
             String descripcion,
 
-            boolean requiereMantenimiento,
+            Boolean requiereMantenimiento,
 
             @Min(value = 1, message = "La vida util debe ser al menos 1 ano")
             @Max(value = 100, message = "La vida util no puede pasar de 100 anos")

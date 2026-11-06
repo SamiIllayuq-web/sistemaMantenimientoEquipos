@@ -61,7 +61,10 @@ public class TipoActivoService {
         tipoActivo.setNombre(request.nombre().trim());
         tipoActivo.setCategoria(request.categoria());
         tipoActivo.setDescripcion(request.descripcion());
-        tipoActivo.setRequiereMantenimiento(request.requiereMantenimiento());
+        // Si el campo no vino en el JSON, se aplica el valor por defecto:
+        // un tipo de activo nuevo requiere mantenimiento.
+        tipoActivo.setRequiereMantenimiento(request.requiereMantenimiento() == null
+                || request.requiereMantenimiento());
         tipoActivo.setVidaUtilAnios(request.vidaUtilAnios());
         tipoActivoRepository.save(tipoActivo);
 
@@ -81,7 +84,10 @@ public class TipoActivoService {
         tipoActivo.setNombre(request.nombre().trim());
         tipoActivo.setCategoria(request.categoria());
         tipoActivo.setDescripcion(request.descripcion());
-        tipoActivo.setRequiereMantenimiento(request.requiereMantenimiento());
+        // Si el campo no vino en el JSON, se conserva el valor actual.
+        if (request.requiereMantenimiento() != null) {
+            tipoActivo.setRequiereMantenimiento(request.requiereMantenimiento());
+        }
         tipoActivo.setVidaUtilAnios(request.vidaUtilAnios());
         tipoActivoRepository.save(tipoActivo);
 

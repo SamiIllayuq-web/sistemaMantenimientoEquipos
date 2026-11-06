@@ -54,6 +54,15 @@ public class IncidenciaUnhController {
         return incidenciaService.listarPaginado(estado, idActivo, pagina, tamano);
     }
 
+    /**
+     * Incidencias ABIERTAS para los desplegables (selectores).
+     * Sin paginar: un selector debe ofrecer todas las opciones.
+     */
+    @GetMapping("/opciones")
+    public List<IncidenciaDtos.IncidenciaOpcion> opciones() {
+        return incidenciaService.listarOpciones();
+    }
+
     /** Detalle: trae el activo anidado. */
     @GetMapping("/{id}")
     public IncidenciaDtos.IncidenciaResponse buscar(@PathVariable Integer id) {

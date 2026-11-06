@@ -3,6 +3,7 @@ import api from '../api/cliente'
 import Paginacion from '../componentes/Paginacion'
 import '../componentes/Paginacion.css'
 import { useSesion } from '../contexto/Sesion'
+import { aFechaLocalServidor, formatearFecha } from '../util/fechas'
 import './Incidencias.css'
 
 const FORMULARIO_VACIO = {
@@ -25,19 +26,6 @@ const ESTADOS = [
   { valor: 'EN_ATENCION', texto: 'En atencion' },
   { valor: 'CERRADA', texto: 'Cerradas' },
 ]
-
-/** Formatea una fecha ISO a texto legible. */
-function formatearFecha(fecha) {
-  if (!fecha) return '-'
-  const d = new Date(fecha)
-  return d.toLocaleString('es-PE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
 
 export default function Incidencias() {
   const { tieneModulo } = useSesion()
@@ -144,9 +132,7 @@ export default function Incidencias() {
     const cuerpo = {
       ...formulario,
       idActivo: Number(formulario.idActivo),
-      fechaDeteccion: formulario.fechaDeteccion
-        ? new Date(formulario.fechaDeteccion).toISOString()
-        : null,
+      fechaDeteccion: aFechaLocalServidor(formulario.fechaDeteccion),
     }
 
     try {

@@ -80,6 +80,20 @@ public class IncidenciaUnhService {
                 resultado.getTotalElements());
     }
 
+    /**
+     * Incidencias ABIERTAS para los desplegables.
+     *
+     * Sin paginar a proposito: un selector debe ofrecer todas las opciones.
+     * Paginarlas lo rompe cuando hay mas registros que paginas.
+     */
+    @Transactional(readOnly = true)
+    public List<IncidenciaDtos.IncidenciaOpcion> listarOpciones() {
+        return incidenciaRepository.findAbiertas()
+                .stream()
+                .map(this::aOpcion)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public IncidenciaDtos.IncidenciaResponse buscar(Integer id) {
         return aResponse(obtener(id));
@@ -163,6 +177,22 @@ public class IncidenciaUnhService {
                 incidencia.getEstado(),
                 incidencia.getFechaCierre(),
                 incidencia.getObservaciones(),
+                new IncidenciaDtos.ActivoResumen(
+                        activo.getIdActivo(),
+                        activo.getCodigoPatrimonial(),
+                        activo.getNombre()
+                )
+        );
+    }
+
+    /** Version ligera para los desplegables: solo lo necesario para elegir. */
+    private IncidenciaDtos.IncidenciaOpcion aOpcion(IncidenciaUnh incidencia) {
+        ActivoUnh activo = incidencia.getActivo();
+
+        return new IncidenciaDtos.IncidenciaOpcion(
+                incidencia.getIdIncidencia(),
+                incidencia.getEstado(),
+                incidencia.getDescripcion(),
                 new IncidenciaDtos.ActivoResumen(
                         activo.getIdActivo(),
                         activo.getCodigoPatrimonial(),
